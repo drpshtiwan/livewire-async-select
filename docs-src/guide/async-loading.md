@@ -64,6 +64,64 @@ Your endpoint must return JSON in this format:
 }
 ```
 
+### Auto-Detection of Fields
+
+The component automatically detects common field names:
+
+**For value field (in order of priority):**
+- `id`
+- `value`
+- array key
+
+**For label field (in order of priority):**
+- `title`
+- `name`
+- `label`
+- `text`
+
+This means you can return data like this without extra configuration:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith"
+    }
+  ]
+}
+```
+
+### Custom Field Names
+
+If your API uses different field names, specify them explicitly:
+
+```html
+<livewire:async-select
+    endpoint="/api/products"
+    value-field="sku"
+    label-field="title"
+/>
+```
+
+Your API can then return:
+
+```json
+{
+  "data": [
+    {
+      "sku": "PROD-001",
+      "title": "Product Name",
+      "price": 99.99
+    }
+  ]
+}
+```
+
 ### With Additional Fields
 
 ```json
@@ -158,6 +216,24 @@ Load options immediately on mount:
 />
 ```
 
+### Reload Options
+
+You can programmatically reload options from your Livewire component:
+
+```php
+// In your Livewire component
+public function refreshUsers()
+{
+    $this->dispatch('reload-options')->to('async-select');
+}
+```
+
+Or call the reload method directly if you have a reference:
+
+```html
+<button wire:click="$wire.call('reload')">Refresh</button>
+```
+
 ## Extra Parameters
 
 Pass additional parameters to your endpoints:
@@ -224,14 +300,190 @@ Route::get('/api/search', function (Request $request) {
 });
 ```
 
+## Pagination
+
+The component supports pagination for loading large datasets efficiently.
+
+### Basic Pagination with `paginate()`
+
+```php
+Route::get('/api/users/search', function (Request $request) {
+    $search = $request->get('search', '');
+    $page = $request->get('page', 1);
+    $perPage = $request->get('per_page', 20);
+    
+    $users = User::query()
+        ->when($search, function($query, $search) {
+            $query->where('name', 'like', "%{$search}%");
+        })
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    return response()->json([
+        'data' => $users->items(),
+        'current_page' => $users->currentPage(),
+        'last_page' => $users->lastPage(),
+        'total' => $users->total(),
+        'per_page' => $users->perPage(),
+    ]);
+});
+```
+
+### Component Configuration
+
+```html
+<livewire:async-select
+    endpoint="/api/users/search"
+    :per-page="20"
+    wire:model="userId"
+/>
+```
+
+### Load More (Infinite Scroll)
+
+The component automatically detects pagination and shows a "Load More" button:
+
+```php
+Route::get('/api/products/search', function (Request $request) {
+    $search = $request->get('search', '');
+    $page = $request->get('page', 1);
+    
+    $products = Product::query()
+        ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+        ->paginate(15);
+
+    return response()->json([
+        'data' => $products->map(fn($product) => [
+            'value' => $product->id,
+            'label' => $product->name,
+            'price' => $product->price,
+        ]),
+        'current_page' => $products->currentPage(),
+        'last_page' => $products->lastPage(),
+    ]);
+});
+```
+
+### Supported Pagination Formats
+
+The component supports multiple pagination response formats:
+
+**Laravel Paginator (Recommended):**
+```json
+{
+  "data": [...],
+  "current_page": 1,
+  "last_page": 5
+}
+```
+
+**Custom Format with `has_more`:**
+```json
+{
+  "data": [...],
+  "has_more": true
+}
+```
+
+**Laravel API Resources:**
+```json
+{
+  "data": [...],
+  "meta": {
+    "current_page": 1,
+    "last_page": 5,
+    "total": 100
+  }
+}
+```
+
+### Complete Pagination Example
+
+**Controller:**
+```php
+namespace App\Http\Controllers\Api;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    public function search(Request $request)
+    {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:255',
+            'page' => 'nullable|integer|min:1',
+            'per_page' => 'nullable|integer|min:5|max:100',
+        ]);
+
+        $search = $validated['search'] ?? '';
+        $perPage = $validated['per_page'] ?? 20;
+
+        $users = User::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->orderBy('name')
+            ->paginate($perPage);
+
+        return response()->json([
+            'data' => $users->map(fn($user) => [
+                'value' => $user->id,
+                'label' => $user->name,
+                'email' => $user->email,
+                'image' => $user->avatar_url,
+            ]),
+            'current_page' => $users->currentPage(),
+            'last_page' => $users->lastPage(),
+            'per_page' => $users->perPage(),
+            'total' => $users->total(),
+        ]);
+    }
+}
+```
+
+**Livewire Component:**
+```php
+use Livewire\Component;
+
+class UserSelector extends Component
+{
+    public $userId;
+
+    public function render()
+    {
+        return view('livewire.user-selector');
+    }
+}
+```
+
+**Blade View:**
+```html
+<div>
+    <livewire:async-select
+        wire:model.live="userId"
+        endpoint="/api/users/search"
+        :per-page="25"
+        :min-search-length="2"
+        placeholder="Search users..."
+        searchable
+    />
+    
+    @if($userId)
+        <p>Selected User ID: {{ $userId }}</p>
+    @endif
+</div>
+```
+
 ## Performance Tips
 
-### 1. Use Pagination
+### 1. Optimize Database Queries
 
 ```php
 $users = User::query()
+    ->select(['id', 'name', 'email', 'avatar']) // Only select needed columns
     ->where('name', 'like', "%{$search}%")
-    ->limit(20) // Limit results
+    ->limit(20)
     ->get();
 ```
 
