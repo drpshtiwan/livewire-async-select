@@ -50,6 +50,14 @@ Complete reference for all component properties and methods.
 | `value-field` | string | null | Custom value field name |
 | `label-field` | string | null | Custom label field name |
 
+### Suffix Button
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `suffix-button` | boolean | false | Show a button on the right side of the input |
+| `suffix-button-icon` | string | null | Custom icon HTML for the suffix button (defaults to plus icon) |
+| `suffix-button-action` | string | null | Livewire event name to dispatch when button is clicked (defaults to 'suffix-button-clicked') |
+
 ## Working with Collections
 
 The component automatically converts Laravel Collections to arrays. You can pass collections directly:

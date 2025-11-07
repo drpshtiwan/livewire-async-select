@@ -213,6 +213,49 @@ Pass additional parameters to your endpoint:
 />
 ```
 
+### With Suffix Button
+
+Add a button on the right side of the select to trigger custom actions:
+
+```html
+<livewire:async-select
+    name="selectedMedia"
+    wire:model="selectedMedia"
+    :options="$media"
+    :suffix-button="true"
+    suffix-button-action="showAddMediaModal"
+    placeholder="Select Media..."
+/>
+```
+
+In your Livewire component, listen to the event:
+
+```php
+use Livewire\Attributes\On;
+
+#[On('showAddMediaModal')]
+public function showAddMediaModal()
+{
+    $this->showModal = true;
+}
+```
+
+### Options Not Updating (Reactivity Issue)
+
+If your options are dynamically loaded or updated and the component isn't reacting to changes, use the `key` attribute to force a re-render:
+
+```html
+<livewire:async-select
+    name="selectedMedia"
+    wire:model="selectedMedia"
+    :options="$media"
+    placeholder="Select Media..."
+    :key="md5(json_encode($media))"
+/>
+```
+
+This ensures Livewire re-mounts the component whenever the options data changes.
+
 ## Setting Default Values
 
 To pre-select values, simply set the property in your Livewire component:

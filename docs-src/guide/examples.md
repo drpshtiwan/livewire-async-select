@@ -451,6 +451,79 @@ Organize options into categories:
 />
 ```
 
+## Media Selection with Add Button
+
+Select media with an "Add" button to upload new media items:
+
+```html
+<livewire:async-select
+    name="selectedMedia"
+    wire:model="selectedMedia"
+    :options="$media"
+    :suffix-button="true"
+    suffix-button-action="showAddMediaModal"
+    placeholder="Select Media..."
+    :key="md5(json_encode($media))"
+/>
+```
+
+**Livewire Component:**
+
+```php
+<?php
+
+namespace App\Livewire;
+
+use App\Models\Media;
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class MediaSelector extends Component
+{
+    public $selectedMedia = null;
+    
+    public $media = [];
+    public $showModal = false;
+    
+    public function mount()
+    {
+        $this->loadMedia();
+    }
+    
+    public function loadMedia()
+    {
+        $this->media = Media::latest()
+            ->get()
+            ->map(fn($item) => [
+                'value' => $item->id,
+                'label' => $item->title,
+                'image' => $item->thumbnail_url,
+            ])
+            ->toArray();
+    }
+    
+    #[On('showAddMediaModal')]
+    public function showAddMediaModal()
+    {
+        $this->showModal = true;
+    }
+    
+    #[On('mediaUploaded')]
+    public function handleMediaUploaded()
+    {
+        $this->loadMedia(); // Reload media options
+        $this->showModal = false;
+    }
+    
+    public function render()
+    {
+        return view('livewire.media-selector');
+    }
+}
+```
+
+**Note**: The `:key="md5(json_encode($media))"` attribute ensures the component re-renders when the `$media` array changes after uploading new media.
+
 ## Complete Form Example
 
 Full working form with validation:

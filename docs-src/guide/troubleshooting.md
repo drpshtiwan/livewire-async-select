@@ -70,6 +70,26 @@ The component uses this stack to register its Alpine.js component. Without it, t
 3. Look at browser Network tab for errors
 4. Ensure proper CORS headers if using separate API
 
+## Options Not Updating
+
+**Issue**: Component not reacting to changes in the `options` prop, especially when options are dynamically loaded or updated
+
+**Solution**: Use the `key` attribute with a hash of your options to force Livewire to re-render the component when options change:
+
+```html
+<livewire:async-select
+    name="selectedMedia"
+    wire:model="selectedMedia"
+    :options="$media"
+    placeholder="Select Media..."
+    :key="md5(json_encode($media))"
+/>
+```
+
+This ensures that whenever the `$media` data changes, Livewire will detect the key change and completely re-render the component with the new options.
+
+**Why this works**: Livewire's reactivity system sometimes doesn't detect deep changes in arrays or collections. By using a `key` attribute that changes when your options change, you explicitly tell Livewire to re-mount the component.
+
 ## Wire:model Not Working
 
 **Issue**: Selected value not updating in Livewire component

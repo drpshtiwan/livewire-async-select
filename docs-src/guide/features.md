@@ -164,6 +164,65 @@ Allow users to clear their selection.
 />
 ```
 
+## ➕ Suffix Button
+
+Add a customizable button on the right side of the select input. Perfect for adding new items, opening modals, or triggering custom actions.
+
+```html
+<livewire:async-select
+    wire:model="selectedMedia"
+    :options="$media"
+    :suffix-button="true"
+    suffix-button-action="showAddMediaModal"
+    placeholder="Select Media..."
+/>
+```
+
+**Features:**
+- Customizable icon (defaults to plus icon)
+- Dispatches Livewire events on click
+- Styled to match the select input
+- RTL support
+
+**With Custom Icon:**
+
+```html
+<livewire:async-select
+    wire:model="selectedMedia"
+    :options="$media"
+    :suffix-button="true"
+    suffix-button-action="showTest"
+    suffix-button-icon="<svg>...</svg>"
+/>
+```
+
+**Listening to Events:**
+
+```php
+#[On('suffix-button-clicked')]
+public function handleSuffixButton()
+{
+    // Handle button click
+    $this->showModal = true;
+}
+```
+
+Or with a custom action name:
+
+```html
+<livewire:async-select
+    suffix-button-action="showAddMediaModal"
+/>
+```
+
+```php
+#[On('showAddMediaModal')]
+public function showAddMediaModal()
+{
+    $this->showModal = true;
+}
+```
+
 ## ⌨️ Keyboard Navigation
 
 Full keyboard support for accessibility:
