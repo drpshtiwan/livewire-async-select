@@ -106,4 +106,15 @@ trait HasComputedProperties
             default => 'h-6 w-6',
         };
     }
+
+    public function getIsRtlProperty(): bool
+    {
+        if (! $this->autoDetectRtl) {
+            return false;
+        }
+
+        $rtlLocales = ['ar', 'ku', 'ckb', 'fa', 'ur', 'he', 'arc', 'az', 'dv', 'ff', 'ha'];
+
+        return in_array($this->locale, $rtlLocales);
+    }
 }

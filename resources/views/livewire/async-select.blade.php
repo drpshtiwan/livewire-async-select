@@ -195,6 +195,18 @@
                         }
                         
                         return true; // Allow default tab behavior
+                    },
+                    handleSuffixButtonClick(event) {
+                        // Close dropdown and blur search inputs
+                        this.close();
+                        if (this.$refs.search) {
+                            this.$refs.search.blur();
+                        }
+                        if (this.$refs.searchDropdown) {
+                            this.$refs.searchDropdown.blur();
+                        }
+                        // Call Livewire method to dispatch event
+                        this.$wire.handleSuffixButtonClick();
                     }
                 }));
             });
@@ -230,10 +242,28 @@
     @endif
 
     <div class="las-relative las-w-full">
-        {{-- Main Select Container --}}
+        {{-- Input Group Container --}}
+        <div class="las-flex las-items-stretch las-w-full">
+            {{-- Main Select Container --}}
+        @php
+        if($this->isRtl) {
+            $suffixButtonClass = $this->suffixButton ? 'las-rounded-l-none' : 
+            'las-rounded-l-md';
+        }else{
+            $suffixButtonClass = $this->suffixButton ? 'las-rounded-r-none' : 
+            'las-rounded-r-md';
+        }
+        @endphp
         <div
-            class="las-select-trigger las-relative las-flex las-min-h-[40px] las-w-full las-cursor-text las-items-center las-rounded-md las-border las-border-gray-300 las-bg-white las-px-3 las-py-2 las-text-sm las-transition-colors hover:las-border-gray-400 focus-within:las-outline-none focus-within:las-ring-2 focus-within:las-ring-primary-500 focus-within:las-ring-offset-2"
-            x-on:click="if ($refs.search) { $refs.search.focus(); openDropdown(); } else { openDropdown(); }"
+            class="las-select-trigger las-relative las-flex las-min-h-[40px] las-flex-1 
+            las-cursor-text las-items-center las-rounded-l-md {{ $suffixButtonClass }} 
+            las-border las-border-gray-300 las-bg-white las-px-3 las-py-2 las-text-sm 
+            las-transition-colors hover:las-border-gray-400 focus-within:las-outline-none 
+            focus-within:las-ring-2 focus-within:las-ring-primary-500 
+            focus-within:las-ring-offset-2 focus-within:las-z-10 {{ $this->suffixButton ? 
+            'focus-within:las-border-r-0' : '' }}"
+            x-on:click="if ($refs.search) { $refs.search.focus(); openDropdown(); } else { 
+            openDropdown(); }"
         >
             {{-- Selected Values / Tags --}}
             <div class="las-flex las-min-w-0 las-flex-1 las-flex-wrap las-items-center las-gap-1.5">
@@ -342,6 +372,24 @@
                     </svg>
                 </button>
             </div>
+            </div>
+            {{-- Suffix Button (Input Group Style) --}}
+            @if ($this->suffixButton)
+                <button
+                    type="button"
+                    class="las-flex las-min-h-[40px] las-shrink-0 las-items-center las-justify-center {{ !$this->isRtl ? 'las-rounded-r-md las-rounded-l-none las-border-l-0' : 'las-rounded-l-md las-rounded-r-none las-border-r-0' }} las-border las-border-gray-300 las-bg-white las-px-3 las-text-sm las-font-medium las-text-gray-700 las-cursor-pointer las-transition-colors hover:las-bg-gray-50 hover:las-text-gray-900 hover:las-border-gray-400 focus:las-outline-none focus:las-ring-2 focus:las-ring-primary-500 focus:las-ring-offset-2"
+                    x-on:click.stop.prevent="handleSuffixButtonClick($event)"
+                    title="{{ __('async-select::async-select.add') }}"
+                >
+                    @if ($this->suffixButtonIcon)
+                        <span class="las-flex las-items-center las-justify-center">{!! $this->suffixButtonIcon !!}</span>
+                    @else
+                        <svg class="las-h-5 las-w-5" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.5 3.5V11.5M3.5 7.5H11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    @endif
+                </button>
+            @endif
         </div>
 
         {{-- Dropdown Menu --}}

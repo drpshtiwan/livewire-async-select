@@ -52,51 +52,20 @@ class AsyncSelect extends Component
 
     public bool $autoload = false;
 
-    /**
-     * Additional query parameters to send with remote requests.
-     *
-     * @var array<string, mixed>
-     */
     public array $extraParams = [];
 
-    /**
-     * Optional custom field name for the value/ID field.
-     * If not set, auto-detects: id, value, or array key
-     */
     public ?string $valueField = null;
 
-    /**
-     * Optional custom field name for the label/display field.
-     * If not set, auto-detects: title, name, label, or text
-     */
     public ?string $labelField = null;
 
-    /**
-     * Optional custom field name for the image field.
-     * If not set (null), images will not be displayed.
-     * Set to a field name to use that specific field, or set to empty string '' to auto-detect.
-     */
     public ?string $imageField = null;
 
-    /**
-     * Size of the images in the dropdown.
-     * Options: 'sm' (4x4 / 16px), 'md' (6x6 / 24px), 'lg' (8x8 / 32px), 'xl' (10x10 / 40px)
-     */
     public string $imageSize = 'md';
 
-    /**
-     * Enable tags mode - allow creating new options by typing
-     */
     public bool $tags = false;
 
-    /**
-     * Maximum number of selections allowed (0 = unlimited)
-     */
     public int $maxSelections = 0;
 
-    /**
-     * Close dropdown after each selection in multiple mode
-     */
     public bool $closeOnSelect = false;
 
     public bool $clearable = true;
@@ -107,14 +76,8 @@ class AsyncSelect extends Component
 
     public bool $isLoading = false;
 
-    /**
-     * Error message from last API call
-     */
     public ?string $errorMessage = null;
 
-    /**
-     * Validation error message passed from parent component
-     */
     public ?string $error = null;
 
     public int $page = 1;
@@ -122,6 +85,12 @@ class AsyncSelect extends Component
     public int $perPage = 20;
 
     public bool $hasMore = false;
+
+    public bool $suffixButton = false;
+
+    public ?string $suffixButtonIcon = null;
+
+    public ?string $suffixButtonAction = null;
 
     public function mount(
         array|int|string|null $value = null,
@@ -147,6 +116,9 @@ class AsyncSelect extends Component
         string $ui = 'tailwind',
         ?string $locale = null,
         ?string $error = null,
+        bool $suffixButton = false,
+        ?string $suffixButtonIcon = null,
+        ?string $suffixButtonAction = null,
     ): void {
         $this->endpoint = $endpoint;
         $this->multiple = $multiple;
@@ -167,16 +139,17 @@ class AsyncSelect extends Component
         $this->selectedEndpoint = $selectedEndpoint;
         $this->ui = strtolower($ui);
         $this->error = $error;
-
-        // Set locale and automatically configure RTL if needed
+        $this->suffixButton = $suffixButton;
+        $this->suffixButtonIcon = $suffixButtonIcon;
+        $this->suffixButtonAction = $suffixButtonAction;
         $this->locale = $locale ?? app()->getLocale();
         $this->configureRtl();
-
-        // Set placeholder with translation fallback
         $this->placeholder = $placeholder ?: __('async-select::async-select.select_option');
 
         $this->setOptions($options);
-        $this->setValue($value);
+
+        $initialValue = $value ?? $this->value;
+        $this->setValue($initialValue);
 
         if ($this->endpoint !== null && ($this->autoload || $this->search !== '')) {
             $this->fetchRemoteOptions($this->search);
@@ -187,12 +160,14 @@ class AsyncSelect extends Component
 
     public function hydrate(): void
     {
-        // Convert Collection to array if needed after hydration
         if ($this->options instanceof Collection) {
             $this->options = $this->options->all();
         }
 
         $this->rebuildOptionCache();
+
+        $this->setValue($this->value);
+
         $this->ensureLabelsForSelected();
     }
 
@@ -239,8 +214,6 @@ class AsyncSelect extends Component
         }
 
         if ($value !== '' && mb_strlen($value) < $this->minSearchLength) {
-            // If search doesn't meet minimum length and autoload is enabled,
-            // restore the autoloaded data
             if ($this->autoload) {
                 $this->page = 1;
                 $this->remoteOptionsMap = [];
@@ -253,6 +226,15 @@ class AsyncSelect extends Component
         $this->page = 1;
         $this->remoteOptionsMap = [];
         $this->fetchRemoteOptions($value);
+    }
+
+    public function handleSuffixButtonClick(): void
+    {
+        if (! empty($this->suffixButtonAction)) {
+            $this->dispatch($this->suffixButtonAction);
+        } else {
+            $this->dispatch('suffix-button-clicked');
+        }
     }
 
     public function render()
