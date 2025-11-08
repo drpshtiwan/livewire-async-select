@@ -140,7 +140,11 @@ Your API can then return:
 
 ## Selected Items Endpoint
 
-When editing forms, you need to load already-selected items:
+When editing forms, you need to load already-selected items. You have two options:
+
+### Option 1: Using selected-endpoint (API Call)
+
+Load selected items from an endpoint:
 
 ```html
 <livewire:async-select
@@ -167,6 +171,37 @@ Route::get('/api/users/selected', function (Request $request) {
     return response()->json(['data' => $users]);
 });
 ```
+
+### Option 2: Using value-labels (No API Call)
+
+::: tip Version 1.1.0 Feature
+Use `value-labels` to provide labels directly without making any API requests. Perfect when you already know the labels.
+:::
+
+If you already have the labels (e.g., from the form data or previous API calls), use `value-labels` to avoid the API request:
+
+```html
+<livewire:async-select
+    wire:model="userId"
+    endpoint="/api/users/search"
+    :value-labels="[
+        5 => 'John Doe',
+        7 => 'Jane Smith'
+    ]"
+/>
+```
+
+**Benefits of value-labels:**
+- ✅ **No API requests** - Labels displayed immediately
+- ✅ **Better performance** - Reduces network traffic
+- ✅ **Works with pre-selected values** - Labels show on mount
+- ✅ **Perfect for edit forms** - Use existing data from the model
+
+**When to use each:**
+- **Use `value-labels`** when you already have the labels (form data, model attributes, etc.)
+- **Use `selected-endpoint`** when labels need to be fetched from the server or might change
+
+[Learn more about value-labels →](/guide/default-values.html#using-value-labels-no-api-calls-required)
 
 ## Configuration
 

@@ -258,14 +258,28 @@ This ensures Livewire re-mounts the component whenever the options data changes.
 
 ## Setting Default Values
 
-To pre-select values, simply set the property in your Livewire component:
+::: tip Version 1.1.0 Update
+In version 1.1.0, default values work seamlessly with `wire:model`. Simply set the property value in your Livewire component - no need to pass the `:value` attribute separately.
+:::
+
+To pre-select values, simply set the property in your Livewire component. The component automatically uses the property value from `wire:model`:
 
 ```php
 class UserForm extends Component
 {
-    public $userId = 5;  // Default value
+    public $userId = 5;  // Default value - automatically used by wire:model
     public $tags = [1, 3, 5];  // Default for multiple selection
 }
+```
+
+In your Blade view, just use `wire:model` - no `:value` attribute needed:
+
+```html
+<livewire:async-select
+    wire:model="userId"
+    :options="$users"
+    placeholder="Select user..."
+/>
 ```
 
 Or load from existing data:
@@ -277,6 +291,21 @@ public function mount($projectId)
     $this->categoryId = $project->category_id;
     $this->teamMembers = $project->members->pluck('id')->toArray();
 }
+```
+
+**With value-labels (No API Calls):**
+
+When you already know the labels, use `value-labels` to display them without making API requests:
+
+```html
+<livewire:async-select
+    wire:model="categoryId"
+    endpoint="/api/categories"
+    :value-labels="[
+        3 => 'Web Development',  // Label displayed immediately, no API call
+    ]"
+    placeholder="Select category..."
+/>
 ```
 
 [Learn more about setting default values →](/guide/default-values.html)

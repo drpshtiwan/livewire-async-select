@@ -183,6 +183,11 @@ Add a customizable button on the right side of the select input. Perfect for add
 - Dispatches Livewire events on click
 - Styled to match the select input
 - RTL support
+- **Automatically closes dropdown when clicked** (v1.1.0) - Perfect for opening modals
+
+::: tip Version 1.1.0 Enhancement
+When the suffix button is clicked, the dropdown automatically closes. This ensures a clean user experience when opening modals, especially when using custom slots. The dropdown closure happens before the event is dispatched, preventing any UI conflicts.
+:::
 
 **With Custom Icon:**
 
@@ -196,6 +201,36 @@ Add a customizable button on the right side of the select input. Perfect for add
 />
 ```
 
+**Opening Modals (v1.1.0):**
+
+Perfect for opening modals to add or select items. The dropdown closes automatically:
+
+```html
+<livewire:async-select
+    wire:model="selectedMedia"
+    :options="$media"
+    :suffix-button="true"
+    suffix-button-action="showAddMediaModal"
+    placeholder="Select Media..."
+>
+    <x-slot name="selectedSlot" :option="$option">
+        <div class="flex items-center gap-2">
+            <img src="{{ $option['image'] }}" class="w-6 h-6 rounded">
+            <span>{{ $option['label'] }}</span>
+        </div>
+    </x-slot>
+</livewire:async-select>
+```
+
+```php
+#[On('showAddMediaModal')]
+public function showAddMediaModal()
+{
+    // Dropdown is already closed when this method is called
+    $this->showModal = true;
+}
+```
+
 **Listening to Events:**
 
 ```php
@@ -203,6 +238,7 @@ Add a customizable button on the right side of the select input. Perfect for add
 public function handleSuffixButton()
 {
     // Handle button click
+    // Dropdown is automatically closed
     $this->showModal = true;
 }
 ```

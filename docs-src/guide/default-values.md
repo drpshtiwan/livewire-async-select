@@ -2,11 +2,15 @@
 
 Learn how to set default/pre-selected values in various scenarios.
 
+::: tip Version 1.1.0 Update
+In version 1.1.0, default values work seamlessly with `wire:model`. You no longer need to pass the `:value` attribute separately when using `wire:model` - the component automatically uses the property value from your Livewire component.
+:::
+
 ## Single Selection
 
 ### Method 1: Set Livewire Property (Recommended)
 
-The simplest way - set the property value in your Livewire component:
+The simplest way - set the property value in your Livewire component. The component automatically detects and uses the `wire:model` property value:
 
 **Livewire Component:**
 
@@ -20,7 +24,7 @@ use Livewire\Component;
 
 class UserForm extends Component
 {
-    public $userId = 5;  // Default value
+    public $userId = 5;  // Default value - automatically used by wire:model
     
     public function mount($userId = null)
     {
@@ -43,6 +47,7 @@ class UserForm extends Component
 **Blade View:**
 
 ```html
+<!-- No :value attribute needed - wire:model automatically uses $userId -->
 <livewire:async-select
     wire:model="userId"
     :options="$users"
@@ -50,9 +55,9 @@ class UserForm extends Component
 />
 ```
 
-### Method 2: Pass Value Attribute
+### Method 2: Pass Value Attribute (Legacy)
 
-Pass the default value directly to the component:
+You can still pass the default value directly to the component, though it's not necessary when using `wire:model`:
 
 ```html
 <livewire:async-select
@@ -62,6 +67,10 @@ Pass the default value directly to the component:
     placeholder="Select user..."
 />
 ```
+
+::: tip
+When using `wire:model`, the `:value` attribute is optional. The component will automatically use the Livewire property value from `wire:model`.
+:::
 
 ### Method 3: Edit Forms with Existing Data
 
@@ -273,9 +282,17 @@ Route::get('/api/users/selected', function (Request $request) {
 The `selected-endpoint` is called automatically when the component mounts with a pre-selected value. This fetches the labels for display.
 :::
 
-### Using value-labels (Alternative to selected-endpoint)
+### Using value-labels (No API Calls Required)
 
-Instead of using a `selected-endpoint` to fetch labels, you can provide labels directly using the `value-labels` attribute. This is useful when you already know the labels and want to avoid an additional API call.
+::: tip Version 1.1.0 Feature
+In version 1.1.0, you can use `value-labels` to display selected labels **without making any API requests**. This is perfect when you already know the labels and want to avoid network calls entirely.
+:::
+
+Instead of using a `selected-endpoint` to fetch labels, you can provide labels directly using the `value-labels` attribute. When `value-labels` is provided, the component will:
+
+1. **Display labels immediately** - No API call is made
+2. **Work with pre-selected values** - Labels show up right away when the component mounts
+3. **Support dynamic updates** - Labels update when values change programmatically
 
 **Use Case: Programmatically Setting Selected Values**
 
@@ -337,7 +354,7 @@ class UserSelector extends Component
 />
 ```
 
-When `addRecommendedUsers()` is called and sets the `selectedUsers` array, the component will automatically display the labels "John Doe", "Jane Smith", and "Bob Wilson" without needing to fetch them from the API.
+When `addRecommendedUsers()` is called and sets the `selectedUsers` array, the component will automatically display the labels "John Doe", "Jane Smith", and "Bob Wilson" **without making any API request**.
 
 **Using value-labels with Images:**
 
@@ -395,12 +412,60 @@ You can also provide images along with labels:
   - You already know the labels (e.g., from previous API calls)
   - You're programmatically setting values and want to avoid extra API calls
   - The labels are static or known at render time
+  - **You want zero API requests for displaying selected labels** (v1.1.0)
+  - Performance is critical and you want to reduce network traffic
   
 - **Use `selected-endpoint`** when:
   - Labels need to be fetched from the server
   - Labels might change and need to be up-to-date
   - You want to keep the data source centralized
+  - Labels are not available at render time
 :::
+
+### Pre-selected Values with value-labels
+
+When you have pre-selected values and provide `value-labels`, the component will display the labels immediately on mount without any API calls:
+
+**Livewire Component:**
+
+```php
+<?php
+
+namespace App\Livewire;
+
+use Livewire\Component;
+
+class EditProject extends Component
+{
+    public $categoryId = 3;  // Pre-selected
+    
+    public function mount($projectId)
+    {
+        $project = Project::find($projectId);
+        $this->categoryId = $project->category_id;  // Pre-selected from existing data
+    }
+    
+    public function render()
+    {
+        return view('livewire.edit-project');
+    }
+}
+```
+
+**Blade View:**
+
+```html
+<livewire:async-select
+    wire:model="categoryId"
+    endpoint="/api/categories"
+    :value-labels="[
+        3 => 'Web Development',  // Label for pre-selected value
+    ]"
+    placeholder="Select category..."
+/>
+```
+
+The label "Web Development" will be displayed immediately when the component mounts, **without making any API request** to fetch it.
 
 ## Dynamic Defaults
 

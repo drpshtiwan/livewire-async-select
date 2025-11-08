@@ -10,7 +10,7 @@ Complete reference for all component properties and methods.
 |----------|------|---------|-------------|
 | `name` | string | null | HTML input name attribute |
 | `wire:model` | string | required | Livewire model binding |
-| `value` | string\|int\|array | null | Default/pre-selected value(s) |
+| `value` | string\|int\|array | null | Default/pre-selected value(s). When using `wire:model`, this is optional as the component automatically uses the property value from `wire:model` (v1.1.0) |
 | `placeholder` | string | 'Select an option' | Placeholder text |
 | `theme` | string | 'tailwind' | UI theme: 'tailwind' or 'bootstrap' |
 | `error` | string | null | Validation error message to display |
@@ -22,7 +22,7 @@ Complete reference for all component properties and methods.
 | `options` | array\|Collection | [] | Static options array or Laravel Collection (auto-converted) |
 | `endpoint` | string | null | API endpoint for async loading |
 | `selected-endpoint` | string | null | Endpoint for loading selected items |
-| `value-labels` | array | [] | Map of value => label (or value => [label, image]) for displaying labels without fetching from API |
+| `value-labels` | array | [] | Map of value => label (or value => [label, image]) for displaying labels **without making any API requests**. When provided, labels are displayed immediately without calling `selected-endpoint` or `endpoint` (v1.1.0) |
 
 ### Behavior
 
@@ -58,6 +58,10 @@ Complete reference for all component properties and methods.
 | `suffix-button` | boolean | false | Show a button on the right side of the input |
 | `suffix-button-icon` | string | null | Custom icon HTML for the suffix button (defaults to plus icon) |
 | `suffix-button-action` | string | null | Livewire event name to dispatch when button is clicked (defaults to 'suffix-button-clicked') |
+
+::: tip Version 1.1.0 Enhancement
+When the suffix button is clicked, the dropdown automatically closes. This is especially useful when opening modals to add or select items, providing a cleaner user experience.
+:::
 
 ## Working with Collections
 

@@ -450,9 +450,128 @@ When using multiple selection with custom chips:
 </x-slot>
 ```
 
+## Suffix Button with Modals
+
+::: tip Version 1.1.0 Feature
+When using a suffix button with custom slots, the dropdown automatically closes when the button is clicked. This is especially useful when opening modals that provide data through slots.
+:::
+
+The suffix button is perfect for opening modals to add or select items. When clicked, it automatically closes the dropdown, ensuring a clean user experience when modals open.
+
+### Example: Opening a Modal to Add Items
+
+**Livewire Component:**
+
+```php
+<?php
+
+namespace App\Livewire;
+
+use Livewire\Attributes\On;
+use Livewire\Component;
+
+class MediaSelector extends Component
+{
+    public $selectedMedia = [];
+    public $showAddModal = false;
+    
+    #[On('showAddMediaModal')]
+    public function showAddMediaModal()
+    {
+        $this->showAddModal = true;
+    }
+    
+    #[On('mediaAdded')]
+    public function handleMediaAdded($mediaId, $mediaLabel, $mediaImage)
+    {
+        // Add the new media to selection
+        if (!in_array($mediaId, $this->selectedMedia)) {
+            $this->selectedMedia[] = $mediaId;
+        }
+    }
+    
+    public function render()
+    {
+        return view('livewire.media-selector');
+    }
+}
+```
+
+**Blade View:**
+
+```html
+<div>
+    <livewire:async-select
+        wire:model="selectedMedia"
+        :multiple="true"
+        endpoint="/api/media/search"
+        :suffix-button="true"
+        suffix-button-action="showAddMediaModal"
+        placeholder="Select media or add new..."
+    >
+        {{-- Custom slot for selected items --}}
+        <x-slot name="selectedSlot" :option="$option">
+            <div class="flex items-center gap-2">
+                <img src="{{ $option['image'] }}" class="w-6 h-6 rounded object-cover">
+                <span class="font-medium">{{ $option['label'] }}</span>
+            </div>
+        </x-slot>
+        
+        {{-- Custom slot for dropdown options --}}
+        <x-slot name="slot" :option="$option">
+            <div class="flex items-center gap-3">
+                <img src="{{ $option['image'] }}" class="w-10 h-10 rounded object-cover">
+                <div>
+                    <div class="font-semibold">{{ $option['label'] }}</div>
+                    <div class="text-xs text-gray-500">{{ $option['size'] ?? 'N/A' }}</div>
+                </div>
+            </div>
+        </x-slot>
+    </livewire:async-select>
+    
+    {{-- Modal that opens when suffix button is clicked --}}
+    @if ($showAddModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white rounded-lg p-6 max-w-2xl w-full">
+                <h2 class="text-xl font-bold mb-4">Add New Media</h2>
+                <!-- Modal content -->
+                <button 
+                    wire:click="$dispatch('mediaAdded', { mediaId: 1, mediaLabel: 'New Image', mediaImage: '/path/to/image.jpg' })"
+                    class="px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                    Add Media
+                </button>
+                <button 
+                    wire:click="$set('showAddModal', false)"
+                    class="px-4 py-2 bg-gray-300 rounded"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    @endif
+</div>
+```
+
+### How It Works
+
+1. **User clicks suffix button** - The dropdown automatically closes
+2. **Event is dispatched** - The `suffix-button-action` event is fired
+3. **Modal opens** - Your Livewire component handles the event and opens the modal
+4. **User adds item** - New items can be added to the selection
+5. **Labels displayed** - Use `value-labels` to display new items without API calls
+
+### Benefits
+
+- **Clean UX** - Dropdown closes automatically when modal opens
+- **No conflicts** - Prevents dropdown from interfering with modal
+- **Better focus management** - Focus moves to modal instead of staying in dropdown
+- **Seamless integration** - Works perfectly with custom slots
+
 ## Next Steps
 
 - [View More Examples →](/guide/examples.html)
 - [API Reference →](/guide/api.html)
 - [Async Loading →](/guide/async-loading.html)
+- [Setting Default Values →](/guide/default-values.html)
 
