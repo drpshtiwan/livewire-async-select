@@ -44,7 +44,13 @@ trait ManagesRemoteData
         $this->errorMessage = null;
 
         try {
-            $response = Http::acceptJson()->timeout(5)->get($this->endpoint, array_merge($this->extraParams, [
+            $http = Http::acceptJson()->timeout(5);
+            
+            if (property_exists($this, 'headers') && ! empty($this->headers)) {
+                $http = $http->withHeaders($this->headers);
+            }
+            
+            $response = $http->get($this->endpoint, array_merge($this->extraParams, [
                 $this->searchParam => $term,
                 'page' => $this->page,
                 'per_page' => $this->perPage,
@@ -105,7 +111,13 @@ trait ManagesRemoteData
         }
 
         try {
-            $response = Http::acceptJson()->timeout(5)->get($endpoint, array_merge($this->extraParams, [
+            $http = Http::acceptJson()->timeout(5);
+            
+            if (property_exists($this, 'headers') && ! empty($this->headers)) {
+                $http = $http->withHeaders($this->headers);
+            }
+            
+            $response = $http->get($endpoint, array_merge($this->extraParams, [
                 $this->selectedParam => implode(',', $values),
             ]));
 

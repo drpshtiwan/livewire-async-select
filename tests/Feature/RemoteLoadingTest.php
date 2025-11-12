@@ -33,6 +33,35 @@ test('sends extra parameters with API request', function () {
     expect($component->get('extraParams'))->toBe(['role' => 'admin', 'status' => 'active']);
 });
 
+test('sends headers with API request', function () {
+    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+
+    $component = Livewire::test(AsyncSelect::class, [
+        'endpoint' => '/api/users',
+        'headers' => [
+            'Authorization' => 'Bearer token123',
+            'X-Custom-Header' => 'custom-value',
+        ],
+        'autoload' => true,
+    ]);
+
+    // Check that headers are set
+    expect($component->get('headers'))->toBe([
+        'Authorization' => 'Bearer token123',
+        'X-Custom-Header' => 'custom-value',
+    ]);
+
+    // Verify headers were sent with the request
+    $recorded = Http::recorded();
+    expect($recorded)->not()->toBeEmpty();
+    
+    $request = $recorded[0][0];
+    expect($request->headers())->toHaveKey('Authorization');
+    expect($request->headers())->toHaveKey('X-Custom-Header');
+    expect($request->header('Authorization'))->toContain('Bearer token123');
+    expect($request->header('X-Custom-Header'))->toContain('custom-value');
+});
+
 test('handles API errors gracefully', function () {
     Http::fake(['/api/users*' => Http::response([], 500)]);
 

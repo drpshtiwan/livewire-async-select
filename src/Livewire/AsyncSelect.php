@@ -54,6 +54,8 @@ class AsyncSelect extends Component
 
     public array $extraParams = [];
 
+    public array $headers = [];
+
     public ?string $valueField = null;
 
     public ?string $labelField = null;
@@ -114,6 +116,7 @@ class AsyncSelect extends Component
         int $minSearchLength = 2,
         bool $autoload = false,
         array $extraParams = [],
+        array $headers = [],
         ?string $selectedEndpoint = null,
         string $ui = 'tailwind',
         ?string $locale = null,
@@ -139,6 +142,7 @@ class AsyncSelect extends Component
         $this->minSearchLength = max(0, $minSearchLength);
         $this->autoload = $autoload;
         $this->extraParams = $extraParams;
+        $this->headers = $headers;
         $this->selectedEndpoint = $selectedEndpoint;
         $this->ui = strtolower($ui);
         $this->error = $error;
