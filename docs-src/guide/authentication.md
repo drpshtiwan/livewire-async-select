@@ -58,6 +58,7 @@ The `async-auth` middleware:
 - Automatically handles internal authentication when `X-Internal-User` header is present
 - Supports all guard specifications: `async-auth:web`, `async-auth:sanctum`, etc.
 - Supports additional flags: `async-auth:web,persist` for session persistence
+:::
 
 ### Step 5: Use Component
 
@@ -269,6 +270,7 @@ Route::get('/api/users/search', function () {
     // auth()->user() will be null even if X-Internal-User header is present
 });
 ```
+:::
 
 ### Applying Middleware to Routes
 
@@ -349,6 +351,7 @@ Route::middleware(['web', 'async-auth:web,persist'])->group(function () {
 ```
 
 **Note:** The `persist` flag only works with session-based guards (like `web`). It stores the authentication in the session for subsequent requests.
+:::
 
 ### Complete Example: Global Configuration
 
