@@ -58,14 +58,20 @@ test('parent can update available options dynamically', function () {
 });
 
 test('loads options from a remote endpoint and resolves selected labels', function () {
-    Http::fake([
-        'https://example.com/options*' => Http::response([
-            'data' => [
-                ['id' => 10, 'text' => 'Remote Option'],
-                ['id' => 11, 'text' => 'Another Option'],
-            ],
-        ]),
-    ]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $url = $request->url();
+        $response = str_contains($url, 'example.com/options')
+            ? Http::response([
+                'data' => [
+                    ['id' => 10, 'text' => 'Remote Option'],
+                    ['id' => 11, 'text' => 'Another Option'],
+                ],
+            ])
+            : Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => 'https://example.com/options',
@@ -75,7 +81,7 @@ test('loads options from a remote endpoint and resolves selected labels', functi
         'value' => '10',
     ]);
 
-    expect(Http::recorded())->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
     $component->set('search', 'Remote');
 
@@ -97,7 +103,18 @@ test('loads options from a remote endpoint and resolves selected labels', functi
     expect($selected[0]['value'])->toBe('11');
     expect($selected[0]['label'])->toBe('Another Option');
 
-    $searchRequests = Http::recorded()->filter(fn (array $interaction) => ($interaction[0]['search'] ?? null) === 'Remote');
+    // Filter requests that contain 'Remote' in the search parameter
+    $searchRequests = array_filter($recordedRequests, function ($interaction) {
+        if (!isset($interaction[0]) || !is_object($interaction[0])) {
+            return false;
+        }
+        $request = $interaction[0];
+        if (method_exists($request, 'data')) {
+            $data = $request->data();
+            return ($data['search'] ?? null) === 'Remote';
+        }
+        return false;
+    });
 
     expect(count($searchRequests))->toBeGreaterThan(0);
 });

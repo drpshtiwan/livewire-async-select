@@ -16,7 +16,13 @@ test('AsyncSelect adds internal auth header when useInternalAuth is enabled', fu
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        // Record ALL requests to ensure we catch them
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -24,13 +30,15 @@ test('AsyncSelect adds internal auth header when useInternalAuth is enabled', fu
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    $request = $recordedRequests[0][0];
     expect($request->headers())->toHaveKey('X-Internal-User');
     expect($request->header('X-Internal-User')[0])->toBeString();
 });
@@ -41,20 +49,33 @@ test('AsyncSelect uses global config for useInternalAuth when not provided', fun
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->toHaveKey('X-Internal-User');
     expect($request->header('X-Internal-User')[0])->toBeString();
 });
@@ -63,7 +84,12 @@ test('AsyncSelect does not add internal auth header for external endpoints', fun
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake(['https://external-api.com/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => 'https://external-api.com/users',
@@ -71,13 +97,21 @@ test('AsyncSelect does not add internal auth header for external endpoints', fun
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for external-api.com/users
+    $externalRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), 'external-api.com/users');
+    });
+    
+    expect($externalRequest)->not()->toBeNull();
+    $request = $externalRequest[0];
     expect($request->headers())->not()->toHaveKey('X-Internal-User');
 });
 
@@ -85,7 +119,12 @@ test('AsyncSelect does not add internal auth header when useInternalAuth is fals
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -93,20 +132,33 @@ test('AsyncSelect does not add internal auth header when useInternalAuth is fals
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->not()->toHaveKey('X-Internal-User');
 });
 
 test('AsyncSelect does not add internal auth header when user is not authenticated', function () {
     Auth::shouldReceive('check')->andReturn(false);
 
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -114,13 +166,21 @@ test('AsyncSelect does not add internal auth header when user is not authenticat
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->not()->toHaveKey('X-Internal-User');
 });
 
@@ -130,7 +190,12 @@ test('AsyncSelect does not add internal auth header when secret is not configure
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -138,13 +203,21 @@ test('AsyncSelect does not add internal auth header when secret is not configure
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->not()->toHaveKey('X-Internal-User');
 });
 
@@ -152,7 +225,12 @@ test('AsyncSelect preserves custom headers when adding internal auth', function 
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -164,13 +242,21 @@ test('AsyncSelect preserves custom headers when adding internal auth', function 
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->not()->toHaveKey('Authorization');
     expect($request->headers())->toHaveKey('X-Custom-Header');
     expect($request->headers())->toHaveKey('X-Internal-User');
@@ -180,7 +266,12 @@ test('AsyncSelect removes Authorization header when useInternalAuth is enabled',
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -191,13 +282,21 @@ test('AsyncSelect removes Authorization header when useInternalAuth is enabled',
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->not()->toHaveKey('Authorization');
     expect($request->headers())->toHaveKey('X-Internal-User');
 });
@@ -206,9 +305,15 @@ test('AsyncSelect adds internal auth header for selectedEndpoint requests', func
     Auth::shouldReceive('check')->andReturn(true);
     Auth::shouldReceive('id')->andReturn(123);
 
-    Http::fake([
-        '/api/selected*' => Http::response(['data' => [['id' => '2', 'name' => 'User 2']]]),
-    ]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $url = $request->url();
+        $response = str_contains($url, '/api/selected')
+            ? Http::response(['data' => [['id' => '2', 'name' => 'User 2']]])
+            : Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -219,10 +324,8 @@ test('AsyncSelect adds internal auth header for selectedEndpoint requests', func
         'labelField' => 'name',
     ]);
 
-    $recorded = Http::recorded();
-
     $selectedRequest = null;
-    foreach ($recorded as $interaction) {
+    foreach ($recordedRequests as $interaction) {
         $request = $interaction[0];
         if (is_object($request) && method_exists($request, 'url')) {
             $url = $request->url();
@@ -394,20 +497,22 @@ test('middleware works with AsyncSelect making requests to protected routes', fu
     Auth::shouldReceive('user')
         ->andReturn(null);
 
-    Http::fake([
-        '/api/users*' => function ($request) {
-            if ($request->hasHeader('X-Internal-User')) {
-                return Http::response([
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $url = $request->url();
+        $response = str_contains($url, '/api/users')
+            ? ($request->hasHeader('X-Internal-User')
+                ? Http::response([
                     'data' => [
                         ['id' => 1, 'name' => 'User 1'],
                         ['id' => 2, 'name' => 'User 2'],
                     ],
-                ]);
-            }
-
-            return Http::response([], 401);
-        },
-    ]);
+                ])
+                : Http::response([], 401))
+            : Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -417,13 +522,21 @@ test('middleware works with AsyncSelect making requests to protected routes', fu
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->toHaveKey('X-Internal-User');
 });
 

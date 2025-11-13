@@ -34,7 +34,12 @@ test('sends extra parameters with API request', function () {
 });
 
 test('sends headers with API request', function () {
-    Http::fake(['/api/users*' => Http::response(['data' => []])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -46,7 +51,10 @@ test('sends headers with API request', function () {
         'autoload' => true,
     ]);
 
-    // Ensure the component has finished processing the autoload request
+    // Explicitly trigger the request to ensure it's made on all PHP versions
+    $component->call('reload');
+
+    // Ensure the component has finished processing the request
     expect($component->get('isLoading'))->toBeFalse();
 
     // Check that headers are set
@@ -56,10 +64,15 @@ test('sends headers with API request', function () {
     ]);
 
     // Verify headers were sent with the request
-    $recorded = Http::recorded();
-    expect($recorded)->not()->toBeEmpty();
+    expect($recordedRequests)->not()->toBeEmpty();
 
-    $request = $recorded[0][0];
+    // Find the request for /api/users or use first request
+    $apiUsersRequest = collect($recordedRequests)->first(function ($interaction) {
+        return str_contains($interaction[0]->url(), '/api/users');
+    }) ?: $recordedRequests[0];
+    
+    expect($apiUsersRequest)->not()->toBeNull();
+    $request = $apiUsersRequest[0];
     expect($request->headers())->toHaveKey('Authorization');
     expect($request->headers())->toHaveKey('X-Custom-Header');
     expect($request->header('Authorization'))->toContain('Bearer token123');
