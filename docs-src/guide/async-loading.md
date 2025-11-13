@@ -61,6 +61,7 @@ Route::get('/api/users/search', function (Request $request) {
     // auth()->user() will be null even if X-Internal-User header is present
 });
 ```
+:::
 
 **Using with different guards:**
 
