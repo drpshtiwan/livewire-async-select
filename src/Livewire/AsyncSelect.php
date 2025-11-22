@@ -75,6 +75,7 @@ class AsyncSelect extends Component
     public bool $clearable = true;
 
     public string $ui = 'tailwind';
+    public ?string $componentUi = null;
 
     public string $locale;
 
@@ -151,7 +152,7 @@ class AsyncSelect extends Component
         $this->headers = $headers;
         $this->useInternalAuth = $useInternalAuth ?? config('async-select.use_internal_auth', false);
         $this->selectedEndpoint = $selectedEndpoint;
-        $this->ui = strtolower($ui ?: config('async-select.ui', 'tailwind'));
+        $this->ui = strtolower($ui ?? $this->componentUi ?? config('async-select.ui', 'tailwind'));
         $this->error = $error;
         $this->suffixButton = $suffixButton;
         $this->suffixButtonIcon = $suffixButtonIcon;
