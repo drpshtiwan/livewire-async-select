@@ -305,6 +305,14 @@ class AsyncSelect extends Component
     {
         $viewName = $this->ui === 'tailwind' ? 'async-select' : 'async-select-'.$this->ui;
 
-        return view("async-select::livewire.{$viewName}");
+        $selectedValues = collect($this->selectedOptions)
+            ->pluck('value')
+            ->map(fn ($value) => (string) $value)
+            ->all();
+
+        return view("async-select::livewire.{$viewName}", [
+            'selectedOptions' => $this->selectedOptions,
+            'selectedValues' => $selectedValues,
+        ]);
     }
 }
