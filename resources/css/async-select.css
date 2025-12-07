@@ -158,10 +158,10 @@
 }
 
 /* RTL Gap Adjustments (for flexbox) */
-.las-rtl .las-gap-1 > * + *,
-.las-rtl .las-gap-2 > * + *,
-.las-rtl .las-gap-3 > * + *,
-.las-rtl .las-gap-4 > * + * {
+.las-rtl .las-gap-1>*+*,
+.las-rtl .las-gap-2>*+*,
+.las-rtl .las-gap-3>*+*,
+.las-rtl .las-gap-4>*+* {
   margin-left: 0;
 }
 
@@ -263,7 +263,8 @@
 
 /* Ensure Bootstrap modal z-index doesn't interfere */
 .las-async-select-wrapper .las-z-50 {
-  z-index: 1050 !important; /* Higher than Bootstrap modal backdrop */
+  z-index: 1050 !important;
+  /* Higher than Bootstrap modal backdrop */
 }
 
 /* Override Select2 classes if they exist */
@@ -274,6 +275,7 @@
 
 /* Custom component styles */
 @layer components {
+
   /* Container */
   .las-async-select {
     @apply las-relative las-w-full;
@@ -633,11 +635,9 @@
   border-left: 1px solid var(--bs-gray-300);
 }
 
-.async-select-bootstrap .async-select-trigger.form-control:focus {
-}
+.async-select-bootstrap .async-select-trigger.form-control:focus {}
 
-.async-select-bootstrap .async-select-trigger.form-control:focus-within {
-}
+.async-select-bootstrap .async-select-trigger.form-control:focus-within {}
 
 /* Bootstrap Input Group Text (Actions) */
 .async-select-bootstrap .async-select-actions.input-group-text {
@@ -681,16 +681,16 @@
 
 /* Bootstrap Input Group - ensure proper border connections */
 /* Bootstrap automatically handles borders, but we ensure proper connections for our structure */
-.async-select-bootstrap:not([dir="rtl"]) .input-group > .form-control + .input-group-text {
+.async-select-bootstrap:not([dir="rtl"]) .input-group>.form-control+.input-group-text {
   border-left: 0 !important;
 }
 
-.async-select-bootstrap:not([dir="rtl"]) .input-group > .input-group-text + .btn {
+.async-select-bootstrap:not([dir="rtl"]) .input-group>.input-group-text+.btn {
   border-left: 0 !important;
 }
 
 /* LTR: Form-control should have rounded left corners when first */
-.async-select-bootstrap:not([dir="rtl"]) .input-group > .form-control:first-child {
+.async-select-bootstrap:not([dir="rtl"]) .input-group>.form-control:first-child {
   border-top-left-radius: 0.375rem;
   border-bottom-left-radius: 0.375rem;
   border-top-right-radius: 0;
@@ -698,13 +698,13 @@
 }
 
 /* LTR: Input-group-text should have rounded right corners when last */
-.async-select-bootstrap:not([dir="rtl"]) .input-group > .input-group-text:last-child {
+.async-select-bootstrap:not([dir="rtl"]) .input-group>.input-group-text:last-child {
   border-top-right-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
 }
 
 /* LTR: Suffix button should have rounded right corners when last */
-.async-select-bootstrap:not([dir="rtl"]) .input-group > .btn:last-child {
+.async-select-bootstrap:not([dir="rtl"]) .input-group>.btn:last-child {
   border-top-right-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
   border-top-left-radius: 0;
@@ -847,15 +847,16 @@
   border-bottom-left-radius: inherit;
 }
 
-.async-select-bootstrap .async-select-option.list-group-item-action  .form-check-input:disabled{
+.async-select-bootstrap .async-select-option.list-group-item-action .form-check-input:disabled {
   opacity: 1 !important;
 }
+
 .async-select-bootstrap .async-select-option.list-group-item-action {
   width: 100%;
   color: inherit;
   text-align: inherit;
   cursor: pointer;
-  border-color:transparent;
+  border-color: transparent;
 }
 
 .async-select-bootstrap .async-select-option.list-group-item-action:hover,
@@ -869,7 +870,7 @@
 .async-select-bootstrap .async-select-option.list-group-item-action.active {
   z-index: 2;
   background-color: var(--bs-component-hover-bg, var(--bs-light));
-  border-color:transparent;
+  border-color: transparent;
 
 }
 
@@ -912,8 +913,8 @@
 }
 
 /* RTL: Form-control should have rounded right corners (visual left) */
-.async-select-bootstrap[dir="rtl"] .input-group > .form-control:first-child,
-#las-ui-bootstrap[dir="rtl"] .input-group > .form-control:first-child {
+.async-select-bootstrap[dir="rtl"] .input-group>.form-control:first-child,
+#las-ui-bootstrap[dir="rtl"] .input-group>.form-control:first-child {
   border-top-right-radius: 0.375rem !important;
   border-bottom-right-radius: 0.375rem !important;
   border-top-left-radius: 0 !important;
@@ -921,10 +922,10 @@
 }
 
 /* RTL: Input-group-text connections - should be on the left of form-control */
-.async-select-bootstrap[dir="rtl"] .input-group > .form-control + .input-group-text,
-#las-ui-bootstrap[dir="rtl"] .input-group > .form-control + .input-group-text {
+.async-select-bootstrap[dir="rtl"] .input-group>.form-control+.input-group-text,
+#las-ui-bootstrap[dir="rtl"] .input-group>.form-control+.input-group-text {
   border-right: 0 !important;
-  border-left: 1px solid var(--bs-gray-300) !important;
+  border-left: 1px solid var(--bs-gray-300);
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   border-top-left-radius: 0 !important;
@@ -932,8 +933,8 @@
 }
 
 /* RTL: Input-group-text when it's last (no suffix button) */
-.async-select-bootstrap[dir="rtl"] .input-group > .input-group-text:last-child,
-#las-ui-bootstrap[dir="rtl"] .input-group > .input-group-text:last-child {
+.async-select-bootstrap[dir="rtl"] .input-group>.input-group-text:last-child,
+#las-ui-bootstrap[dir="rtl"] .input-group>.input-group-text:last-child {
   border-top-left-radius: 0.375rem !important;
   border-bottom-left-radius: 0.375rem !important;
   border-top-right-radius: 0 !important;
@@ -941,10 +942,10 @@
 }
 
 /* RTL: Suffix button connections */
-.async-select-bootstrap[dir="rtl"] .input-group > .input-group-text + .btn,
-#las-ui-bootstrap[dir="rtl"] .input-group > .input-group-text + .btn {
+.async-select-bootstrap[dir="rtl"] .input-group>.input-group-text+.btn,
+#las-ui-bootstrap[dir="rtl"] .input-group>.input-group-text+.btn {
   border-right: 0 !important;
-  border-left: 1px solid inherit !important;
+  border-left: 1px solid inherit;
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
@@ -952,8 +953,8 @@
 }
 
 /* RTL: Suffix button when last */
-.async-select-bootstrap[dir="rtl"] .input-group > .btn:last-child,
-#las-ui-bootstrap[dir="rtl"] .input-group > .btn:last-child {
+.async-select-bootstrap[dir="rtl"] .input-group>.btn:last-child,
+#las-ui-bootstrap[dir="rtl"] .input-group>.btn:last-child {
   border-top-left-radius: 0.375rem !important;
   border-bottom-left-radius: 0.375rem !important;
   border-top-right-radius: 0 !important;
@@ -1025,13 +1026,13 @@
 }
 
 /* RTL: Ensure proper border connections when input-group is reversed */
-.async-select-bootstrap[dir="rtl"] .input-group > .form-control:first-child + .input-group-text,
-#las-ui-bootstrap[dir="rtl"] .input-group > .form-control:first-child + .input-group-text {
+.async-select-bootstrap[dir="rtl"] .input-group>.form-control:first-child+.input-group-text,
+#las-ui-bootstrap[dir="rtl"] .input-group>.form-control:first-child+.input-group-text {
   border-right: 0 !important;
 }
 
-.async-select-bootstrap[dir="rtl"] .input-group > .input-group-text:first-child + .btn,
-#las-ui-bootstrap[dir="rtl"] .input-group > .input-group-text:first-child + .btn {
+.async-select-bootstrap[dir="rtl"] .input-group>.input-group-text:first-child+.btn,
+#las-ui-bootstrap[dir="rtl"] .input-group>.input-group-text:first-child+.btn {
   border-right: 0 !important;
   border-left: 1px solid inherit !important;
 }

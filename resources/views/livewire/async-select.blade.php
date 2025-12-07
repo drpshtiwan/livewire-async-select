@@ -270,7 +270,10 @@
                             >
                                 @if ($slot ?? false)
                                     {{-- Custom slot rendering --}}
-                                    {{ $slot($option, $isSelected, $isDisabled, $this->multiple) }}
+                                    @php
+                                        extract(['option' => $option, 'isSelected' => $isSelected, 'isDisabled' => $isDisabled, 'multiple' => $this->multiple]);
+                                    @endphp
+                                    {!! $slot !!}
                                 @else
                                     {{-- Default rendering --}}
                                     @if ($this->multiple)
@@ -346,13 +349,40 @@
                             x-on:mouseenter="if (!{{ $isDisabled ? 'true' : 'false' }}) { highlight({{ $index }}); }"
                             x-on:click.stop="if (!{{ $isDisabled ? 'true' : 'false' }}) { selectValue({{ Js::from($optionValue) }}); }"
                         >
-                            @if ($this->multiple)
-                                <span 
-                                    class="las-flex las-h-4 las-w-4 las-shrink-0 las-items-center las-justify-center las-rounded-sm las-border las-transition-colors"
-                                    :class="{{ $isSelected ? 'true' : 'false' }} ? 'las-border-primary-500 las-bg-primary-500 las-text-white' : 'las-border-gray-300'"
-                                >
+                            @if ($slot ?? false)
+                                {{-- Custom slot rendering --}}
+                                @php
+                                    extract(['option' => $option, 'isSelected' => $isSelected, 'isDisabled' => $isDisabled, 'multiple' => $this->multiple]);
+                                @endphp
+                                {!! $slot !!}
+                            @else
+                                {{-- Default rendering --}}
+                                @if ($this->multiple)
+                                    <span 
+                                        class="las-flex las-h-4 las-w-4 las-shrink-0 las-items-center las-justify-center las-rounded-sm las-border las-transition-colors"
+                                        :class="{{ $isSelected ? 'true' : 'false' }} ? 'las-border-primary-500 las-bg-primary-500 las-text-white' : 'las-border-gray-300'"
+                                    >
+                                        <svg 
+                                            class="las-h-3 las-w-3 las-transition-opacity" 
+                                            :class="{{ $isSelected ? 'true' : 'false' }} ? 'las-opacity-100' : 'las-opacity-0'"
+                                            viewBox="0 0 15 15" 
+                                            fill="none" 
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path d="M11.5 3.5L6 9L3.5 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                @endif
+
+                                @if ($optionImage)
+                                    <img src="{{ $optionImage }}" alt="{{ $optionLabel }}" class="{{ $this->imageSizeClass }} las-shrink-0 las-rounded las-object-cover">
+                                @endif
+                                
+                                <span class="las-flex-1 las-truncate">{{ $optionLabel }}</span>
+
+                                @if (! $this->multiple)
                                     <svg 
-                                        class="las-h-3 las-w-3 las-transition-opacity" 
+                                        class="las-h-4 las-w-4 las-transition-opacity" 
                                         :class="{{ $isSelected ? 'true' : 'false' }} ? 'las-opacity-100' : 'las-opacity-0'"
                                         viewBox="0 0 15 15" 
                                         fill="none" 
@@ -360,25 +390,7 @@
                                     >
                                         <path d="M11.5 3.5L6 9L3.5 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
-                                </span>
-                            @endif
-
-                            @if ($optionImage)
-                                <img src="{{ $optionImage }}" alt="{{ $optionLabel }}" class="{{ $this->imageSizeClass }} las-shrink-0 las-rounded las-object-cover">
-                            @endif
-                            
-                            <span class="las-flex-1 las-truncate">{{ $optionLabel }}</span>
-
-                            @if (! $this->multiple)
-                                <svg 
-                                    class="las-h-4 las-w-4 las-transition-opacity" 
-                                    :class="{{ $isSelected ? 'true' : 'false' }} ? 'las-opacity-100' : 'las-opacity-0'"
-                                    viewBox="0 0 15 15" 
-                                    fill="none" 
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path d="M11.5 3.5L6 9L3.5 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                @endif
                             @endif
                         </div>
                     @empty

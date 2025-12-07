@@ -95,6 +95,8 @@ class AsyncSelect extends Component
     public ?string $suffixButtonIcon = null;
 
     public ?string $suffixButtonAction = null;
+    
+    public array $suffixButtonActionParams = [];
 
     public array $valueLabels = [];
 
@@ -107,8 +109,8 @@ class AsyncSelect extends Component
         bool $multiple = false,
         ?string $name = null,
         string $placeholder = '',
-        string $valueField = 'value',
-        string $labelField = 'label',
+        ?string $valueField = null,
+        ?string $labelField = null,
         ?string $imageField = null,
         string $imageSize = 'md',
         bool $tags = false,
@@ -129,6 +131,7 @@ class AsyncSelect extends Component
         bool $suffixButton = false,
         ?string $suffixButtonIcon = null,
         ?string $suffixButtonAction = null,
+        array $suffixButtonActionParams = [],
         array $valueLabels = [],
         bool $searchable = true,
     ): void {
@@ -156,6 +159,7 @@ class AsyncSelect extends Component
         $this->suffixButton = $suffixButton;
         $this->suffixButtonIcon = $suffixButtonIcon;
         $this->suffixButtonAction = $suffixButtonAction;
+        $this->suffixButtonActionParams = $suffixButtonActionParams;
         $this->valueLabels = $valueLabels;
         $this->locale = $locale ?? app()->getLocale();
         $this->configureRtl();
@@ -257,9 +261,9 @@ class AsyncSelect extends Component
     public function handleSuffixButtonClick(): void
     {
         if (! empty($this->suffixButtonAction)) {
-            $this->dispatch($this->suffixButtonAction);
+            $this->dispatch($this->suffixButtonAction, data: $this->suffixButtonActionParams);
         } else {
-            $this->dispatch('suffix-button-clicked');
+            $this->dispatch('suffix-button-clicked', data: $this->suffixButtonActionParams);
         }
     }
 
@@ -310,9 +314,15 @@ class AsyncSelect extends Component
             ->map(fn ($value) => (string) $value)
             ->all();
 
+        $attributes = $this->getAttributes();
+        $slot = $attributes->get('slot');
+        $selectedSlot = $attributes->get('selectedSlot');
+
         return view("async-select::livewire.{$viewName}", [
             'selectedOptions' => $this->selectedOptions,
             'selectedValues' => $selectedValues,
+            'slot' => $slot,
+            'selectedSlot' => $selectedSlot,
         ]);
     }
 }

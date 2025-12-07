@@ -91,6 +91,12 @@ class InternalAuthenticate
 
         $request->setUserResolver(fn () => Auth::guard($guard)->user());
 
+        // Preserve locale from Accept-Language header
+        $localeHeader = $request->header('Accept-Language');
+        if ($localeHeader) {
+            app()->setLocale($localeHeader);
+        }
+
         if (! empty($payload['perms'])) {
             foreach ($payload['perms'] as $perm) {
                 $user = Auth::guard($guard)->user();

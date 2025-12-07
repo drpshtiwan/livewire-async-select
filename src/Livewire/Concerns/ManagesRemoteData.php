@@ -304,6 +304,20 @@ trait ManagesRemoteData
             unset($headers['Authorization']);
         }
 
+        // Include locale header to preserve locale context for internal requests
+        if (! isset($headers['Accept-Language'])) {
+            $locale = null;
+            if (property_exists($this, 'locale') && ! empty($this->locale)) {
+                $locale = $this->locale;
+            } else {
+                $locale = app()->getLocale();
+            }
+
+            if ($locale) {
+                $headers['Accept-Language'] = $locale;
+            }
+        }
+
         if (! isset($headers['X-Internal-User'])
             && property_exists($this, 'useInternalAuth')
             && $this->useInternalAuth

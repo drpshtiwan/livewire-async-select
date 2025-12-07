@@ -604,3 +604,288 @@ test('middleware can be applied to route groups', function () {
     $response2->assertStatus(200);
     $response2->assertJson(['user_id' => 123]);
 });
+
+test('AsyncSelect includes Accept-Language header with app locale for internal requests', function () {
+    Config::set('app.locale', 'ckb');
+    app()->setLocale('ckb');
+
+    Auth::shouldReceive('check')->andReturn(true);
+    Auth::shouldReceive('id')->andReturn(123);
+
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+
+        return $response;
+    });
+
+    $component = Livewire::test(AsyncSelect::class, [
+        'endpoint' => '/api/users',
+        'useInternalAuth' => true,
+        'autoload' => true,
+    ]);
+
+    $component->call('reload');
+    expect($component->get('isLoading'))->toBeFalse();
+
+    expect($recordedRequests)->not()->toBeEmpty();
+
+    $request = $recordedRequests[0][0];
+    expect($request->headers())->toHaveKey('Accept-Language');
+    expect($request->header('Accept-Language')[0])->toBe('ckb');
+});
+
+test('AsyncSelect includes Accept-Language header with component locale when set', function () {
+    Config::set('app.locale', 'en');
+    app()->setLocale('en');
+
+    Auth::shouldReceive('check')->andReturn(true);
+    Auth::shouldReceive('id')->andReturn(123);
+
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+
+        return $response;
+    });
+
+    $component = Livewire::test(AsyncSelect::class, [
+        'endpoint' => '/api/users',
+        'useInternalAuth' => true,
+        'locale' => 'ckb',
+        'autoload' => true,
+    ]);
+
+    $component->call('reload');
+    expect($component->get('isLoading'))->toBeFalse();
+
+    expect($recordedRequests)->not()->toBeEmpty();
+
+    $request = $recordedRequests[0][0];
+    expect($request->headers())->toHaveKey('Accept-Language');
+    expect($request->header('Accept-Language')[0])->toBe('ckb');
+});
+
+test('AsyncSelect does not override existing Accept-Language header', function () {
+    Config::set('app.locale', 'en');
+    app()->setLocale('en');
+
+    Auth::shouldReceive('check')->andReturn(true);
+    Auth::shouldReceive('id')->andReturn(123);
+
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response(['data' => []]);
+        $recordedRequests[] = [$request, $response];
+
+        return $response;
+    });
+
+    $component = Livewire::test(AsyncSelect::class, [
+        'endpoint' => '/api/users',
+        'useInternalAuth' => true,
+        'headers' => [
+            'Accept-Language' => 'fr',
+        ],
+        'autoload' => true,
+    ]);
+
+    $component->call('reload');
+    expect($component->get('isLoading'))->toBeFalse();
+
+    expect($recordedRequests)->not()->toBeEmpty();
+
+    $request = $recordedRequests[0][0];
+    expect($request->headers())->toHaveKey('Accept-Language');
+    expect($request->header('Accept-Language')[0])->toBe('fr');
+});
+
+test('middleware preserves locale from Accept-Language header', function () {
+    $userId = 123;
+    $token = InternalAuthToken::issue($userId, [
+        'm' => 'GET',
+        'p' => '/api/test',
+    ]);
+
+    // Set initial locale
+    app()->setLocale('en');
+
+    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/test', function () {
+        return response()->json([
+            'locale' => app()->getLocale(),
+        ]);
+    });
+
+    $guard = \Mockery::mock();
+    $guard->shouldReceive('onceUsingId')
+        ->once()
+        ->with('123')
+        ->andReturn(true);
+    $guard->shouldReceive('check')
+        ->andReturn(true);
+    $guard->shouldReceive('id')
+        ->andReturn(123);
+    $guard->shouldReceive('user')
+        ->andReturn(null);
+
+    Auth::shouldReceive('shouldUse')
+        ->once()
+        ->with('web')
+        ->andReturnSelf();
+
+    Auth::shouldReceive('guard')
+        ->once()
+        ->with('web')
+        ->andReturn($guard);
+
+    Auth::shouldReceive('check')
+        ->andReturn(true);
+
+    Auth::shouldReceive('id')
+        ->andReturn(123);
+
+    Auth::shouldReceive('user')
+        ->andReturn(null);
+
+    $response = $this->get('/api/test', [
+        'X-Internal-User' => $token,
+        'Accept-Language' => 'ckb',
+    ]);
+
+    $response->assertStatus(200);
+    $response->assertJson([
+        'locale' => 'ckb',
+    ]);
+
+    // Verify locale was set
+    expect(app()->getLocale())->toBe('ckb');
+});
+
+test('middleware preserves locale for translations in internal auth requests', function () {
+    $userId = 123;
+    $token = InternalAuthToken::issue($userId, [
+        'm' => 'GET',
+        'p' => '/api/translated',
+    ]);
+
+    // Set up translation files
+    $translationsPath = app()->langPath('vendor/async-select/ckb');
+    if (! file_exists($translationsPath)) {
+        mkdir($translationsPath, 0755, true);
+    }
+    file_put_contents($translationsPath.'/async-select.php', "<?php return ['select_option' => 'هەڵبژاردن'];");
+
+    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/translated', function () {
+        return response()->json([
+            'locale' => app()->getLocale(),
+            'translation' => __('async-select::async-select.select_option'),
+        ]);
+    });
+
+    $guard = \Mockery::mock();
+    $guard->shouldReceive('onceUsingId')
+        ->once()
+        ->with('123')
+        ->andReturn(true);
+    $guard->shouldReceive('check')
+        ->andReturn(true);
+    $guard->shouldReceive('id')
+        ->andReturn(123);
+    $guard->shouldReceive('user')
+        ->andReturn(null);
+
+    Auth::shouldReceive('shouldUse')
+        ->once()
+        ->with('web')
+        ->andReturnSelf();
+
+    Auth::shouldReceive('guard')
+        ->once()
+        ->with('web')
+        ->andReturn($guard);
+
+    Auth::shouldReceive('check')
+        ->andReturn(true);
+
+    Auth::shouldReceive('id')
+        ->andReturn(123);
+
+    Auth::shouldReceive('user')
+        ->andReturn(null);
+
+    $response = $this->get('/api/translated', [
+        'X-Internal-User' => $token,
+        'Accept-Language' => 'ckb',
+    ]);
+
+    $response->assertStatus(200);
+    $response->assertJson([
+        'locale' => 'ckb',
+    ]);
+
+    // Clean up
+    if (file_exists($translationsPath.'/async-select.php')) {
+        unlink($translationsPath.'/async-select.php');
+    }
+});
+
+test('middleware does not change locale when Accept-Language header is missing', function () {
+    $userId = 123;
+    $token = InternalAuthToken::issue($userId, [
+        'm' => 'GET',
+        'p' => '/api/test',
+    ]);
+
+    // Set initial locale
+    app()->setLocale('en');
+    $initialLocale = app()->getLocale();
+
+    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/test', function () {
+        return response()->json([
+            'locale' => app()->getLocale(),
+        ]);
+    });
+
+    $guard = \Mockery::mock();
+    $guard->shouldReceive('onceUsingId')
+        ->once()
+        ->with('123')
+        ->andReturn(true);
+    $guard->shouldReceive('check')
+        ->andReturn(true);
+    $guard->shouldReceive('id')
+        ->andReturn(123);
+    $guard->shouldReceive('user')
+        ->andReturn(null);
+
+    Auth::shouldReceive('shouldUse')
+        ->once()
+        ->with('web')
+        ->andReturnSelf();
+
+    Auth::shouldReceive('guard')
+        ->once()
+        ->with('web')
+        ->andReturn($guard);
+
+    Auth::shouldReceive('check')
+        ->andReturn(true);
+
+    Auth::shouldReceive('id')
+        ->andReturn(123);
+
+    Auth::shouldReceive('user')
+        ->andReturn(null);
+
+    // Make request without Accept-Language header (explicitly set to null)
+    $response = $this->get('/api/test', [
+        'X-Internal-User' => $token,
+        'Accept-Language' => null,
+    ]);
+
+    $response->assertStatus(200);
+    $responseData = $response->json();
+    expect($responseData['locale'])->toBe($initialLocale);
+});

@@ -93,12 +93,18 @@ test('handles API errors gracefully', function () {
 });
 
 test('auto-detects value and label fields', function () {
-    Http::fake(['/api/users*' => Http::response([
-        'data' => [
-            ['id' => 1, 'name' => 'John Doe'],
-            ['id' => 2, 'name' => 'Jane Smith'],
-        ],
-    ])]);
+    $recordedRequests = [];
+    Http::fake(function ($request) use (&$recordedRequests) {
+        $response = Http::response([
+            'data' => [
+                ['id' => 1, 'name' => 'John Doe'],
+                ['id' => 2, 'name' => 'Jane Smith'],
+            ],
+        ]);
+        $recordedRequests[] = [$request, $response];
+
+        return $response;
+    });
 
     $component = Livewire::test(AsyncSelect::class, [
         'endpoint' => '/api/users',
@@ -106,9 +112,33 @@ test('auto-detects value and label fields', function () {
     ]);
 
     // Component should auto-detect 'id' as value and 'name' as label
-    // Default is 'value' and 'label', but component adapts to API response
-    expect($component->get('valueField'))->toBeIn(['id', 'value']);
-    expect($component->get('labelField'))->toBeIn(['name', 'label']);
+    // When auto-detection is enabled, valueField and labelField are null
+    expect($component->get('valueField'))->toBeNull();
+    expect($component->get('labelField'))->toBeNull();
+
+    // Explicitly trigger reload to ensure options are loaded
+    $component->call('reload');
+
+    // Verify that the component correctly normalized the options with auto-detected fields
+    expect($component->get('isLoading'))->toBeFalse();
+    expect($recordedRequests)->not()->toBeEmpty();
+
+    // Verify that displayOptions show the auto-detected fields correctly
+    $displayOptions = $component->get('displayOptions');
+    expect($displayOptions)->toHaveCount(2);
+    expect($displayOptions[0]['value'])->toBe('1');
+    expect($displayOptions[0]['label'])->toBe('John Doe');
+    expect($displayOptions[1]['value'])->toBe('2');
+    expect($displayOptions[1]['label'])->toBe('Jane Smith');
+
+    // Verify that options can be selected using auto-detected fields
+    $component->call('selectOption', '1');
+    expect($component->get('value'))->toBe('1');
+
+    $selected = $component->get('selectedOptions');
+    expect($selected)->toHaveCount(1);
+    expect($selected[0]['value'])->toBe('1');
+    expect($selected[0]['label'])->toBe('John Doe');
 });
 
 test('uses custom value and label fields', function () {
