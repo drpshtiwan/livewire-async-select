@@ -17,8 +17,12 @@ trait ManagesRemoteData
             return;
         }
 
+        $this->remoteOptionsMap = $this->clonedRemoteOptionsMap;
+
         $this->page++;
         $this->fetchRemoteOptions($this->search, true);
+        $this->clonedRemoteOptionsMap = $this->remoteOptionsMap;
+
     }
 
     public function reload(): void
@@ -78,7 +82,7 @@ trait ManagesRemoteData
             }
 
             if ($append) {
-                $this->remoteOptionsMap = array_merge($this->remoteOptionsMap, $normalized);
+                $this->remoteOptionsMap = array_replace($this->remoteOptionsMap, $normalized);
             } else {
                 $this->remoteOptionsMap = $normalized;
             }

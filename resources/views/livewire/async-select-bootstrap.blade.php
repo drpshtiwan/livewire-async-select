@@ -148,7 +148,7 @@
                     </div>
                 @endif
 
-                <div class="" x-ref="options" role="listbox"
+                <div class="" x-ref="options" role="listbox" style="max-height: 200px; overflow-y: auto;"
                     x-on:scroll.debounce.150ms="
                     if ($el.scrollHeight - $el.scrollTop - $el.clientHeight < 50) {
                         if ({{ $hasMore ? 'true' : 'false' }} && !{{ $isLoading ? 'true' : 'false' }}) {
