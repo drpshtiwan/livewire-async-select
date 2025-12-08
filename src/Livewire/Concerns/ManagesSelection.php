@@ -43,7 +43,6 @@ trait ManagesSelection
             $this->value = $value;
             $this->search = '';
         }
-
         $this->ensureLabelsForSelected();
     }
 

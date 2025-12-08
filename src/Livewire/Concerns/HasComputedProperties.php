@@ -73,6 +73,7 @@ trait HasComputedProperties
         $selected = [];
 
         foreach ($values as $value) {
+
             if (isset($this->optionCache[$value])) {
                 $selected[] = $this->optionCache[$value];
 
@@ -115,7 +116,7 @@ trait HasComputedProperties
                     } else {
                         $option = [
                             'value' => $valueKey,
-                            'label' => $valueKey,
+                            'label' => (string) $labelData,
                         ];
                     }
 

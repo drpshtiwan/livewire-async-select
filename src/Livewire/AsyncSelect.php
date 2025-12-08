@@ -95,12 +95,14 @@ class AsyncSelect extends Component
     public ?string $suffixButtonIcon = null;
 
     public ?string $suffixButtonAction = null;
-    
+
     public array $suffixButtonActionParams = [];
 
     public array $valueLabels = [];
 
     public bool $searchable = true;
+
+    public array $clonedRemoteOptionsMap = [];
 
     public function mount(
         array|int|string|null $value = null,
@@ -256,6 +258,7 @@ class AsyncSelect extends Component
         $this->page = 1;
         $this->remoteOptionsMap = [];
         $this->fetchRemoteOptions($value);
+        $this->clonedRemoteOptionsMap = $this->remoteOptionsMap;
     }
 
     public function handleSuffixButtonClick(): void
@@ -269,13 +272,15 @@ class AsyncSelect extends Component
 
     protected function processValueLabels(): void
     {
-        if (empty($this->valueLabels)) {
+        $valueLabels = array_replace($this->clonedRemoteOptionsMap, $this->valueLabels);
+
+        if (empty($valueLabels)) {
             return;
         }
 
         $processed = [];
 
-        foreach ($this->valueLabels as $value => $labelData) {
+        foreach ($valueLabels as $value => $labelData) {
             $valueKey = $this->keyForValue($value);
 
             if ($valueKey === null) {
