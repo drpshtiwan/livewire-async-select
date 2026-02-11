@@ -44,11 +44,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer update --no-interaction --prefer-dist \
-            "pestphp/pest:${{ matrix.pest }}" \
-            "phpunit/phpunit:${{ matrix.phpunit }}" \
-            "pestphp/pest-plugin-laravel:^2.4" \
-            --with-all-dependencies
+          if [ -f composer.lock ]; then
+            composer update --no-interaction --prefer-dist \
+              "pestphp/pest:${{ matrix.pest }}" \
+              "phpunit/phpunit:${{ matrix.phpunit }}" \
+              "pestphp/pest-plugin-laravel:^2.4" \
+              --with-all-dependencies
+          else
+            composer update --no-interaction --prefer-dist --with-all-dependencies
+          fi
 
       - name: Run Pint (check)
         run: vendor/bin/pint --test
