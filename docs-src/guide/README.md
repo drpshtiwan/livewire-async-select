@@ -83,7 +83,7 @@ Livewire Async Select is perfect when you need:
 
 - PHP 8.1 or higher
 - Laravel 10.x, 11.x, or 12.x
-- Livewire 3.3 or higher
+- Livewire 3.3 or higher (including 4.x)
 - Alpine.js (usually bundled with Livewire)
 
 ## Browser Support
@@ -94,10 +94,17 @@ Livewire Async Select is perfect when you need:
 - Edge (latest)
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
+## Recent Updates
+
+- Added `suffix-button-action-params` to send payload data with suffix button events.
+- Improved selected value label resolution to prevent raw value display when labels are available.
+- Refined Bootstrap theme spacing, borders, and icon sizing for better visual consistency.
+- Preserved labels during remote pagination to avoid empty labels when APIs return values only.
+- Fixed `wire:navigate` behavior by ensuring Alpine registration on SPA navigation.
+
 ## Next Steps
 
 - [Installation →](/guide/installation.html)
 - [Quick Start →](/guide/quickstart.html)
 - [Setting Default Values →](/guide/default-values.html)
 - [View Features →](/guide/features.html)
-

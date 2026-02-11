@@ -314,20 +314,35 @@ class AsyncSelect extends Component
     {
         $viewName = $this->ui === 'tailwind' ? 'async-select' : 'async-select-'.$this->ui;
 
-        $selectedValues = collect($this->selectedOptions)
+        $displayOptions = $this->displayOptions;
+        $groupedOptions = $this->groupedOptions;
+        $hasGroups = $this->hasGroups;
+        $selectedOptions = $this->selectedOptions;
+        $hasSelection = $this->hasSelection;
+        $isRtl = $this->isRtl;
+        $imageSizeClass = $this->imageSizeClass;
+
+        $selectedValues = collect($selectedOptions)
             ->pluck('value')
             ->map(fn ($value) => (string) $value)
             ->all();
 
+        // Backward compatibility for environments where slots are exposed as callables via attributes.
         $attributes = $this->getAttributes();
-        $slot = $attributes->get('slot');
-        $selectedSlot = $attributes->get('selectedSlot');
+        $legacyOptionSlot = $attributes->get('slot');
+        $legacySelectedSlot = $attributes->get('selectedSlot');
 
         return view("async-select::livewire.{$viewName}", [
-            'selectedOptions' => $this->selectedOptions,
+            'displayOptions' => $displayOptions,
+            'groupedOptions' => $groupedOptions,
+            'hasGroups' => $hasGroups,
+            'selectedOptions' => $selectedOptions,
+            'hasSelection' => $hasSelection,
+            'isRtl' => $isRtl,
+            'imageSizeClass' => $imageSizeClass,
             'selectedValues' => $selectedValues,
-            'slot' => $slot,
-            'selectedSlot' => $selectedSlot,
+            'legacyOptionSlot' => is_callable($legacyOptionSlot) ? $legacyOptionSlot : null,
+            'legacySelectedSlot' => is_callable($legacySelectedSlot) ? $legacySelectedSlot : null,
         ]);
     }
 }

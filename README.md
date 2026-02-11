@@ -80,6 +80,24 @@ php artisan vendor:publish --tag=async-select-assets
 />
 ```
 
+### Custom Slots (Livewire 3.3+ / 4.x)
+
+```blade
+<livewire:async-select :options="$users" wire:model="selectedUser">
+    <livewire:slot name="slot">
+        <div>{{ $option['label'] }}</div>
+    </livewire:slot>
+
+    <livewire:slot name="selectedSlot">
+        <strong>{{ $option['label'] }}</strong>
+    </livewire:slot>
+</livewire:async-select>
+```
+
+Slot variables are provided automatically:
+- option slot: `$option`, `$isSelected`, `$isDisabled`, `$multiple`
+- selected slot: `$option`
+
 **API Route with async-auth middleware:**
 
 ```php
@@ -121,7 +139,7 @@ The `async-auth` middleware is automatically registered and works exactly like `
 
 - PHP 8.1+
 - Laravel 10.x, 11.x, or 12.x
-- Livewire 3.3+
+- Livewire 3.3+ or 4.x
 
 ## 🆚 Why This Package?
 

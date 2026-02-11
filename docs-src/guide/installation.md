@@ -6,7 +6,7 @@ Before installing, ensure your environment meets these requirements:
 
 - **PHP**: 8.1 or higher
 - **Laravel**: 10.x, 11.x, or 12.x
-- **Livewire**: 3.3 or higher
+- **Livewire**: 3.3 or higher (including 4.x)
 
 ## Install via Composer
 
@@ -230,7 +230,7 @@ The package comes with pre-built Tailwind CSS styles that use the `las-` prefix 
 
 ### Alpine.js
 
-Livewire 3.3+ includes Alpine.js by default, so no additional setup is required. If you're using an older version or need to install Alpine.js separately:
+Livewire 3.3+ (including 4.x) includes Alpine.js by default, so no additional setup is required. If you're using an older version or need to install Alpine.js separately:
 
 ```bash
 npm install alpinejs
@@ -262,10 +262,9 @@ Ensure your CSS framework (Tailwind or Bootstrap) is properly loaded in your lay
 
 ### Alpine.js Errors
 
-Make sure Alpine.js is loaded. Livewire 3 includes Alpine.js by default.
+Make sure Alpine.js is loaded. Livewire 3.3+ and 4.x include Alpine.js by default.
 
 ## Next Steps
 
 - [Quick Start Guide →](/guide/quickstart.html)
 - [View All Features →](/guide/features.html)
-

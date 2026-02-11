@@ -1,7 +1,31 @@
 @include('async-select::livewire.scripts')
 
+@php
+    $hasNamedOptionSlot = isset($slots) && method_exists($slots, 'has') && $slots->has('slot');
+    $hasNamedSelectedSlot = isset($slots) && method_exists($slots, 'has') && $slots->has('selectedSlot');
+    $hasLegacyOptionSlot = isset($legacyOptionSlot) && is_callable($legacyOptionSlot);
+    $hasLegacySelectedSlot = isset($legacySelectedSlot) && is_callable($legacySelectedSlot);
+    $hasCustomOptionSlot = $hasLegacyOptionSlot || $hasNamedOptionSlot;
+    $hasCustomSelectedSlot = $hasLegacySelectedSlot || $hasNamedSelectedSlot;
+
+    $renderNamedSlot = function (string $name, array $data = []) use ($slots): string {
+        if (! isset($slots) || ! method_exists($slots, 'get')) {
+            return '';
+        }
+
+        $slotObject = $slots->get($name);
+        $slotContent = $slotObject->content ?? '';
+
+        if (! is_string($slotContent) || trim($slotContent) === '') {
+            return '';
+        }
+
+        return \Illuminate\Support\Facades\Blade::render($slotContent, $data);
+    };
+@endphp
+
 <div class="async-select async-select-bootstrap" id="las-ui-{{ $ui }}" data-las-ui="{{ ucfirst($ui) }}"
-    data-las-locale="{{ $locale }}" dir="{{ $this->isRtl ? 'rtl' : 'ltr' }}">
+    data-las-locale="{{ $locale }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
     <div x-data="asyncSelect({ multiple: {{ $this->multiple ? 'true' : 'false' }}, tags: {{ $this->tags ? 'true' : 'false' }} })" x-on:click.outside="close()" x-on:keydown.escape.window="close()"
         x-on:keydown.arrow-down.prevent="highlightNext()" x-on:keydown.arrow-up.prevent="highlightPrevious()"
         x-on:keydown.enter.prevent="handleEnter()" x-on:keydown.tab="if (!handleTab()) { $event.preventDefault(); }"
@@ -31,23 +55,26 @@
                             @endphp
 
                             <span
-                                class="async-select-chip badge p-2 text-bg-light mb-1 d-inline-flex align-items-center {{ $this->isRtl ? 'ms-1' : 'me-1' }}"
+                                class="async-select-chip badge p-2 text-bg-light mb-1 d-inline-flex align-items-center {{ $isRtl ? 'ms-1' : 'me-1' }}"
                                 style="gap: 0.25rem;" data-selected="{{ $chipValue }}"
                                 wire:key="async-select-chip-{{ md5($chipValue) }}">
-                                @if ($selectedSlot ?? false)
-                                    {{ $selectedSlot($chip) }}
+                                @if ($hasCustomSelectedSlot)
+                                    @if ($hasLegacySelectedSlot)
+                                        {!! $legacySelectedSlot($chip) !!}
+                                    @else
+                                        {!! $renderNamedSlot('selectedSlot', ['option' => $chip]) !!}
+                                    @endif
                                 @else
                                     @if ($chipImage)
                                         <img src="{{ $chipImage }}" alt="{{ $chipLabel }}"
-                                            class="rounded {{ $this->imageSizeClass }}">
+                                            class="rounded {{ $imageSizeClass }}">
                                     @endif
 
                                     <span class="text-truncate text-primary"
                                         style="max-width: 150px;">{{ $chipLabel }}</span>
                                 @endif
 
-                                <button type="button"
-                                    class="btn-close btn-close-dark {{ $this->isRtl ? 'me-1' : 'ms-1' }}"
+                                <button type="button" class="btn-close btn-close-dark {{ $isRtl ? 'me-1' : 'ms-1' }}"
                                     style="font-size: 0.65rem;" wire:click="clearSelection({{ Js::from($chipValue) }})"
                                     x-on:click.stop
                                     aria-label="{{ __('async-select::async-select.remove') }}"></button>
@@ -61,9 +88,13 @@
                                 autocomplete="off">
                         @endif
                     @else
-                        @if ($this->hasSelection)
-                            @if ($selectedSlot ?? false)
-                                {{ $selectedSlot($selectedOptions[0]) }}
+                        @if ($hasSelection)
+                            @if ($hasCustomSelectedSlot)
+                                @if ($hasLegacySelectedSlot)
+                                    {!! $legacySelectedSlot($selectedOptions[0]) !!}
+                                @else
+                                    {!! $renderNamedSlot('selectedSlot', ['option' => $selectedOptions[0]]) !!}
+                                @endif
                             @else
                                 <span class="text-truncate"
                                     style="flex: 1 1 auto;">{{ $selectedOptions[0]['label'] }}</span>
@@ -80,7 +111,7 @@
 
                 <div class="async-select-actions input-group-text d-flex align-items-center gap-1 {{ $error ? 'border-danger' : '' }}"
                     style="padding: 0.375rem 0.5rem;">
-                    @if ($this->hasSelection && $this->clearable)
+                    @if ($hasSelection && $this->clearable)
                         <button type="button" class="btn-close p-0"
                             style="font-size: 0.75rem; width: 1.25rem; height: 1.25rem; opacity: 0.5;"
                             wire:click="clearSelection()" x-on:click.stop
@@ -104,7 +135,7 @@
 
                 @if ($this->suffixButton)
                     <button type="button"
-                        class="async-select-suffix-button btn btn-icon btn-outline d-flex align-items-center justify-content-center {{ !$this->isRtl ? 'rounded-end rounded-start-0' : 'rounded-start rounded-end-0' }}"
+                        class="async-select-suffix-button btn btn-icon btn-outline d-flex align-items-center justify-content-center {{ !$isRtl ? 'rounded-end rounded-start-0' : 'rounded-start rounded-end-0' }}"
                         style="min-height: 43px; white-space: nowrap; flex-shrink: 0;"
                         x-on:click.stop.prevent="handleSuffixButtonClick($event)"
                         title="{{ __('async-select::async-select.add') }}"
@@ -130,12 +161,11 @@
                 x-transition:leave-end="opacity-0 scale-95" x-cloak
                 class="async-select-dropdown position-absolute w-100 mt-1 rounded border shadow-lg"
                 style="z-index: 1050; top: 100%; left: 0; right: 0;">
-                @if (!$this->multiple && $this->hasSelection && $this->searchable)
+                @if (!$this->multiple && $hasSelection && $this->searchable)
                     <div class="mb-1 px-1">
                         <input x-ref="searchDropdown" type="text" wire:model.live.debounce.300ms="search"
                             placeholder="{{ __('async-select::async-select.search') }}" class="form-control"
-                            style="{{ $this->isRtl ? 'text-align: right; direction: rtl;' : '' }}"
-                            autocomplete="off">
+                            style="{{ $isRtl ? 'text-align: right; direction: rtl;' : '' }}" autocomplete="off">
                     </div>
                 @endif
 
@@ -148,7 +178,7 @@
                     </div>
                 @endif
 
-                <div class="" x-ref="options" role="listbox" style="max-height: 200px; overflow-y: auto;"
+                <div x-ref="options" role="listbox" style="max-height: 200px; overflow-y: auto;"
                     x-on:scroll.debounce.150ms="
                     if ($el.scrollHeight - $el.scrollTop - $el.clientHeight < 50) {
                         if ({{ $hasMore ? 'true' : 'false' }} && !{{ $isLoading ? 'true' : 'false' }}) {
@@ -156,9 +186,9 @@
                         }
                     }
                 ">
-                    @if ($this->hasGroups)
+                    @if ($hasGroups)
                         @php $globalIndex = 0; @endphp
-                        @foreach ($this->groupedOptions as $groupName => $groupOptions)
+                        @foreach ($groupedOptions as $groupName => $groupOptions)
                             @if ($groupName !== '_flat' && $groupName !== '_ungrouped')
                                 <div class="list-group-item list-group-item-secondary small fw-bold">
                                     {{ $groupName }}
@@ -188,20 +218,26 @@
                                     aria-disabled="{{ $isDisabled ? 'true' : 'false' }}"
                                     x-on:mouseenter="if (!{{ $isDisabled ? 'true' : 'false' }}) { highlight({{ $globalIndex }}); }"
                                     x-on:click.stop="if (!{{ $isDisabled ? 'true' : 'false' }}) { selectValue({{ Js::from($optionValue) }}); }">
-                                    @if ($slot ?? false)
+                                    @if ($hasCustomOptionSlot)
                                         {{-- Custom slot rendering --}}
-                                        @php
-                                            extract([
+                                        @if ($hasLegacyOptionSlot)
+                                            {!! $legacyOptionSlot([
                                                 'option' => $option,
                                                 'isSelected' => $isSelected,
                                                 'isDisabled' => $isDisabled,
                                                 'multiple' => $this->multiple,
-                                            ]);
-                                        @endphp
-                                        {!! $slot !!}
+                                            ]) !!}
+                                        @else
+                                            {!! $renderNamedSlot('slot', [
+                                                'option' => $option,
+                                                'isSelected' => $isSelected,
+                                                'isDisabled' => $isDisabled,
+                                                'multiple' => $this->multiple,
+                                            ]) !!}
+                                        @endif
                                     @else
                                         @if ($this->multiple)
-                                            <input class="form-check-input {{ $this->isRtl ? 'ms-2' : 'me-2' }}"
+                                            <input class="form-check-input {{ $isRtl ? 'ms-2' : 'me-2' }}"
                                                 type="checkbox" :checked="{{ $isSelected ? 'true' : 'false' }}"
                                                 disabled>
                                         @endif
@@ -235,7 +271,7 @@
                             </div>
                         @endif
                     @else
-                        @forelse ($this->displayOptions as $index => $option)
+                        @forelse ($displayOptions as $index => $option)
                             @php
                                 $optionValue = $option['value'];
                                 $optionLabel = $option['label'];
@@ -258,21 +294,27 @@
                                 aria-disabled="{{ $isDisabled ? 'true' : 'false' }}"
                                 x-on:mouseenter="if (!{{ $isDisabled ? 'true' : 'false' }}) { highlight({{ $index }}); }"
                                 x-on:click.stop="if (!{{ $isDisabled ? 'true' : 'false' }}) { selectValue({{ Js::from($optionValue) }}); }">
-                                @if ($slot ?? false)
+                                @if ($hasCustomOptionSlot)
                                     {{-- Custom slot rendering --}}
-                                    @php
-                                        extract([
+                                    @if ($hasLegacyOptionSlot)
+                                        {!! $legacyOptionSlot([
                                             'option' => $option,
                                             'isSelected' => $isSelected,
                                             'isDisabled' => $isDisabled,
                                             'multiple' => $this->multiple,
-                                        ]);
-                                    @endphp
-                                    {!! $slot !!}
+                                        ]) !!}
+                                    @else
+                                        {!! $renderNamedSlot('slot', [
+                                            'option' => $option,
+                                            'isSelected' => $isSelected,
+                                            'isDisabled' => $isDisabled,
+                                            'multiple' => $this->multiple,
+                                        ]) !!}
+                                    @endif
                                 @else
                                     {{-- Default rendering --}}
                                     @if ($this->multiple)
-                                        <input class="form-check-input {{ $this->isRtl ? 'ms-2' : 'me-2' }}"
+                                        <input class="form-check-input {{ $isRtl ? 'ms-2' : 'me-2' }}"
                                             type="checkbox" :checked="{{ $isSelected ? 'true' : 'false' }}" disabled>
                                     @endif
 

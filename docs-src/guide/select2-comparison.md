@@ -46,7 +46,7 @@ Complete feature comparison between Livewire Async Select and Select2.
 | Multiple Languages | ✅ Yes | ✅ Yes | 3 built-in (EN, AR, CKB) |
 | Custom Translations | ✅ Yes | ✅ Yes | Publishable lang files |
 | **Integration** | | | |
-| Framework | Livewire 3 | jQuery | Native integration |
+| Framework | Livewire 3/4 | jQuery | Native integration |
 | Two-way Binding | ✅ Yes | ⚠️ Manual | wire:model |
 | Validation Support | ✅ Yes | ⚠️ Manual | Built-in error display |
 | Form Integration | ✅ Yes | ✅ Yes | Native HTML forms |
@@ -334,4 +334,3 @@ For most Laravel projects, **Livewire Async Select is the better choice**.
 - [Quick Start →](/guide/quickstart.html)
 - [All Features →](/guide/features.html)
 - [Examples →](/guide/examples.html)
-

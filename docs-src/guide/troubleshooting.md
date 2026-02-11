@@ -27,7 +27,7 @@ php artisan config:clear
 **Error**: `Alpine is not defined` or `Cannot read property 'data' of undefined`
 
 **Solution**:
-Livewire 3 includes Alpine.js by default. Make sure you're using Livewire 3.3+:
+Livewire 3.3+ (including 4.x) includes Alpine.js by default. Make sure you're using Livewire 3.3+ or 4.x:
 
 ```bash
 composer require livewire/livewire:^3.3
@@ -90,6 +90,34 @@ This ensures that whenever the `$media` data changes, Livewire will detect the k
 
 **Why this works**: Livewire's reactivity system sometimes doesn't detect deep changes in arrays or collections. By using a `key` attribute that changes when your options change, you explicitly tell Livewire to re-mount the component.
 
+## Custom Slot Output Is Blank
+
+**Issue**: Dropdown rows appear empty or you see fragment comments like `FRAGMENT:type=slot` in the HTML.
+
+**Cause**: Slot syntax mismatch after upgrading Livewire.
+
+**Solution**:
+1. Use named slots without passing slot attributes:
+
+```html
+<livewire:async-select :options="$users">
+    <livewire:slot name="slot">
+        <span>{{ $option['label'] }}</span>
+    </livewire:slot>
+
+    <livewire:slot name="selectedSlot">
+        <span>{{ $option['label'] }}</span>
+    </livewire:slot>
+</livewire:async-select>
+```
+
+2. Clear compiled views:
+
+```bash
+php artisan view:clear
+php artisan optimize:clear
+```
+
 ## Wire:model Not Working
 
 **Issue**: Selected value not updating in Livewire component
@@ -117,4 +145,3 @@ php artisan view:clear
 
 - [GitHub Issues](https://github.com/drpshtiwan/livewire-async-select/issues)
 - [Discussion Board](https://github.com/drpshtiwan/livewire-async-select/discussions)
-

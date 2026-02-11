@@ -2,9 +2,12 @@
 
 namespace DrPshtiwan\LivewireAsyncSelect\Livewire\Concerns;
 
+use Livewire\Attributes\Computed;
+
 trait HasComputedProperties
 {
-    public function getDisplayOptionsProperty(): array
+    #[Computed]
+    public function displayOptions(): array
     {
         $options = $this->endpoint !== null ? $this->remoteOptionsMap : $this->optionsMap;
 
@@ -15,7 +18,8 @@ trait HasComputedProperties
         return array_values($options);
     }
 
-    public function getGroupedOptionsProperty(): array
+    #[Computed]
+    public function groupedOptions(): array
     {
         $options = $this->displayOptions;
         $grouped = [];
@@ -55,7 +59,8 @@ trait HasComputedProperties
         return ['_flat' => $ungrouped];
     }
 
-    public function getHasGroupsProperty(): bool
+    #[Computed]
+    public function hasGroups(): bool
     {
         foreach ($this->displayOptions as $option) {
             if (isset($option['group'])) {
@@ -66,7 +71,8 @@ trait HasComputedProperties
         return false;
     }
 
-    public function getSelectedOptionsProperty(): array
+    #[Computed]
+    public function selectedOptions(): array
     {
         $values = $this->selectedValues();
 
@@ -136,12 +142,14 @@ trait HasComputedProperties
         return $selected;
     }
 
-    public function getHasSelectionProperty(): bool
+    #[Computed]
+    public function hasSelection(): bool
     {
         return count($this->selectedValues()) > 0;
     }
 
-    public function getMaxSelectionsReachedProperty(): bool
+    #[Computed]
+    public function maxSelectionsReached(): bool
     {
         if (! $this->multiple || $this->maxSelections === 0) {
             return false;
@@ -150,7 +158,8 @@ trait HasComputedProperties
         return count($this->selectedValues()) >= $this->maxSelections;
     }
 
-    public function getImageSizeClassProperty(): string
+    #[Computed]
+    public function imageSizeClass(): string
     {
         return match ($this->imageSize) {
             'sm' => $this->ui === 'bootstrap' ? 'h-4 w-4' : 'h-4 w-4',
@@ -162,7 +171,8 @@ trait HasComputedProperties
         };
     }
 
-    public function getIsRtlProperty(): bool
+    #[Computed]
+    public function isRtl(): bool
     {
         if (! $this->autoDetectRtl) {
             return false;

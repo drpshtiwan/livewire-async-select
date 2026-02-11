@@ -9,6 +9,26 @@ Livewire Async Select provides two powerful slots for customization:
 1. **`slot`** - Customize how each option appears in the dropdown
 2. **`selectedSlot`** - Customize how selected items are displayed
 
+## Slot Syntax (Livewire 3.3+ / 4.x)
+
+Use plain named slots. The component injects slot variables automatically.
+
+```html
+<livewire:async-select :options="$users">
+    <livewire:slot name="slot">
+        {{ $option['label'] }}
+        @if ($isSelected) ✓ @endif
+    </livewire:slot>
+
+    <livewire:slot name="selectedSlot">
+        {{ $option['label'] }}
+    </livewire:slot>
+</livewire:async-select>
+```
+
+You do not need to pass `:option`, `:isSelected`, `:isDisabled`, or `:multiple` on `<livewire:slot>`.
+These variables are available automatically in both local and remote option rendering.
+
 ## Starting Simple
 
 ### Basic Usage (No Slots)
@@ -38,12 +58,12 @@ The `slot` customizes each option in the dropdown menu.
 
 ```html
 <livewire:async-select :options="$users">
-    <x-slot name="slot" :option="$option">
+    <livewire:slot name="slot">
         <div class="flex items-center gap-2">
             <span class="font-medium">{{ $option['label'] }}</span>
             <span class="text-xs text-gray-500">(ID: {{ $option['value'] }})</span>
         </div>
-    </x-slot>
+    </livewire:slot>
 </livewire:async-select>
 ```
 
@@ -51,7 +71,7 @@ The `slot` customizes each option in the dropdown menu.
 
 ```html
 <livewire:async-select :options="$users">
-    <x-slot name="slot" :option="$option">
+    <livewire:slot name="slot">
         <div class="flex items-center gap-3">
             <img 
                 src="{{ $option['image'] ?? '/default-avatar.png' }}" 
@@ -65,7 +85,7 @@ The `slot` customizes each option in the dropdown menu.
                 @endif
             </div>
         </div>
-    </x-slot>
+    </livewire:slot>
 </livewire:async-select>
 ```
 
@@ -73,7 +93,7 @@ The `slot` customizes each option in the dropdown menu.
 
 ```html
 <livewire:async-select :options="$users">
-    <x-slot name="slot" :option="$option" :isSelected="$isSelected" :isDisabled="$isDisabled" :multiple="$multiple">
+    <livewire:slot name="slot">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <span class="font-medium">{{ $option['label'] }}</span>
@@ -88,7 +108,7 @@ The `slot` customizes each option in the dropdown menu.
                 </svg>
             @endif
         </div>
-    </x-slot>
+    </livewire:slot>
 </livewire:async-select>
 ```
 
@@ -96,7 +116,7 @@ The `slot` customizes each option in the dropdown menu.
 
 ```html
 <livewire:async-select endpoint="/api/products/search">
-    <x-slot name="slot" :option="$option">
+    <livewire:slot name="slot">
         <div class="flex items-center justify-between gap-3 py-1">
             {{-- Left side: Product info --}}
             <div class="flex items-center gap-3 flex-1">
@@ -124,7 +144,7 @@ The `slot` customizes each option in the dropdown menu.
                 </div>
             </div>
         </div>
-    </x-slot>
+    </livewire:slot>
 </livewire:async-select>
 ```
 
@@ -148,20 +168,20 @@ The `selectedSlot` customizes how selected items appear:
 ```html
 <livewire:async-select :options="$users">
     {{-- Dropdown options --}}
-    <x-slot name="slot" :option="$option">
+    <livewire:slot name="slot">
         <div class="flex items-center gap-2">
             <img src="{{ $option['image'] }}" class="w-8 h-8 rounded-full">
             <span>{{ $option['label'] }}</span>
         </div>
-    </x-slot>
+    </livewire:slot>
     
     {{-- Selected item display in input field --}}
-    <x-slot name="selectedSlot" :option="$option">
+    <livewire:slot name="selectedSlot">
         <div class="flex items-center gap-2">
             <img src="{{ $option['image'] }}" class="w-6 h-6 rounded-full">
             <span class="font-medium">{{ $option['label'] }}</span>
         </div>
-    </x-slot>
+    </livewire:slot>
 </livewire:async-select>
 ```
 
@@ -173,7 +193,7 @@ The `selectedSlot` customizes how selected items appear:
     :options="$teamMembers"
 >
     {{-- Dropdown options --}}
-    <x-slot name="slot" :option="$option" :isSelected="$isSelected">
+    <livewire:slot name="slot">
         <div class="flex items-center gap-3">
             <img src="{{ $option['image'] }}" class="w-8 h-8 rounded-full">
             <div>
@@ -184,13 +204,13 @@ The `selectedSlot` customizes how selected items appear:
                 <span class="text-green-500 text-sm">✓</span>
             @endif
         </div>
-    </x-slot>
+    </livewire:slot>
     
     {{-- Chip display for selected items --}}
-    <x-slot name="selectedSlot" :option="$option">
+    <livewire:slot name="selectedSlot">
         <span class="font-medium">{{ $option['label'] }}</span>
         <span class="text-xs opacity-75">({{ $option['role'] }})</span>
-    </x-slot>
+    </livewire:slot>
 </livewire:async-select>
 ```
 
@@ -198,14 +218,14 @@ The `selectedSlot` customizes how selected items appear:
 
 ```html
 <livewire:async-select :multiple="true" :options="$tags">
-    <x-slot name="selectedSlot" :option="$option">
+    <livewire:slot name="selectedSlot">
         <div class="flex items-center gap-1">
             @if (isset($option['color']))
                 <span class="w-2 h-2 rounded-full" style="background-color: {{ $option['color'] }}"></span>
             @endif
             <span>{{ $option['label'] }}</span>
         </div>
-    </x-slot>
+    </livewire:slot>
 </livewire:async-select>
 ```
 
@@ -284,7 +304,7 @@ class TeamBuilder extends Component
                 placeholder="Select team leader..."
             >
                 {{-- Option in dropdown --}}
-                <x-slot name="slot" :option="$option" :isSelected="$isSelected">
+                <livewire:slot name="slot">
                     <div class="flex items-center gap-3">
                         <img 
                             src="{{ $option['image'] }}" 
@@ -308,16 +328,16 @@ class TeamBuilder extends Component
                             </div>
                         </div>
                     </div>
-                </x-slot>
+                </livewire:slot>
                 
                 {{-- Selected display --}}
-                <x-slot name="selectedSlot" :option="$option">
+                <livewire:slot name="selectedSlot">
                     <div class="flex items-center gap-2">
                         <img src="{{ $option['image'] }}" class="w-6 h-6 rounded-full">
                         <span class="font-medium">{{ $option['label'] }}</span>
                         <span class="text-sm text-gray-500">({{ $option['role'] }})</span>
                     </div>
-                </x-slot>
+                </livewire:slot>
             </livewire:async-select>
             
             @error('teamLeader')
@@ -340,7 +360,7 @@ class TeamBuilder extends Component
                 placeholder="Add team members..."
             >
                 {{-- Option in dropdown --}}
-                <x-slot name="slot" :option="$option" :isSelected="$isSelected">
+                <livewire:slot name="slot">
                     <div class="flex items-center gap-3">
                         <img 
                             src="{{ $option['image'] }}" 
@@ -357,12 +377,12 @@ class TeamBuilder extends Component
                             </svg>
                         @endif
                     </div>
-                </x-slot>
+                </livewire:slot>
                 
                 {{-- Chip display --}}
-                <x-slot name="selectedSlot" :option="$option">
+                <livewire:slot name="selectedSlot">
                     <span class="font-medium">{{ $option['label'] }}</span>
-                </x-slot>
+                </livewire:slot>
             </livewire:async-select>
             
             @error('teamMembers')
@@ -391,13 +411,13 @@ Don't over-complicate your slot templates. The simpler, the better for performan
 Show different content based on state:
 
 ```html
-<x-slot name="slot" :option="$option" :isSelected="$isSelected" :isDisabled="$isDisabled">
+<livewire:slot name="slot">
     <div class="flex items-center gap-2">
         <span :class="{ 'font-bold': isSelected, 'text-gray-400': isDisabled }">
             {{ $option['label'] }}
         </span>
     </div>
-</x-slot>
+</livewire:slot>
 ```
 
 ### 3. Optimize Images
@@ -421,19 +441,19 @@ Ensure `slot` and `selectedSlot` have consistent styling:
 
 ```html
 {{-- Both slots use similar image sizes and layout --}}
-<x-slot name="slot" :option="$option">
+<livewire:slot name="slot">
     <div class="flex items-center gap-2">
         <img src="{{ $option['image'] }}" class="w-8 h-8 rounded-full">
         <span>{{ $option['label'] }}</span>
     </div>
-</x-slot>
+</livewire:slot>
 
-<x-slot name="selectedSlot" :option="$option">
+<livewire:slot name="selectedSlot">
     <div class="flex items-center gap-2">
         <img src="{{ $option['image'] }}" class="w-6 h-6 rounded-full">
         <span>{{ $option['label'] }}</span>
     </div>
-</x-slot>
+</livewire:slot>
 ```
 
 ## Tips for Multiple Selection
@@ -445,9 +465,9 @@ When using multiple selection with custom chips:
 3. **Consider truncation** - Long labels should be truncated
 
 ```html
-<x-slot name="selectedSlot" :option="$option">
+<livewire:slot name="selectedSlot">
     <span class="truncate max-w-[150px]">{{ $option['label'] }}</span>
-</x-slot>
+</livewire:slot>
 ```
 
 ## Suffix Button with Modals
@@ -510,15 +530,15 @@ class MediaSelector extends Component
         placeholder="Select media or add new..."
     >
         {{-- Custom slot for selected items --}}
-        <x-slot name="selectedSlot" :option="$option">
+        <livewire:slot name="selectedSlot">
             <div class="flex items-center gap-2">
                 <img src="{{ $option['image'] }}" class="w-6 h-6 rounded object-cover">
                 <span class="font-medium">{{ $option['label'] }}</span>
             </div>
-        </x-slot>
+        </livewire:slot>
         
         {{-- Custom slot for dropdown options --}}
-        <x-slot name="slot" :option="$option">
+        <livewire:slot name="slot">
             <div class="flex items-center gap-3">
                 <img src="{{ $option['image'] }}" class="w-10 h-10 rounded object-cover">
                 <div>
@@ -526,7 +546,7 @@ class MediaSelector extends Component
                     <div class="text-xs text-gray-500">{{ $option['size'] ?? 'N/A' }}</div>
                 </div>
             </div>
-        </x-slot>
+        </livewire:slot>
     </livewire:async-select>
     
     {{-- Modal that opens when suffix button is clicked --}}
@@ -574,4 +594,3 @@ class MediaSelector extends Component
 - [API Reference →](/guide/api.html)
 - [Async Loading →](/guide/async-loading.html)
 - [Setting Default Values →](/guide/default-values.html)
-

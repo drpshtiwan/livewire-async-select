@@ -18,7 +18,16 @@ trait ManagesSelection
         }
 
         // Check if the option is disabled
-        $allOptions = array_merge($this->optionsMap, $this->remoteOptionsMap);
+        $allOptions = array_replace($this->optionsMap, $this->remoteOptionsMap);
+        $canCreateTag = $this->tags && $this->multiple;
+        $isRemoteMode = $this->endpoint !== null;
+
+        // In local mode, reject unknown values to prevent invalid selections.
+        // In remote mode, the current option map may not contain all fetched values after hydration.
+        if (! isset($allOptions[$value]) && ! $canCreateTag && ! $isRemoteMode) {
+            return;
+        }
+
         if (isset($allOptions[$value]) && ($allOptions[$value]['disabled'] ?? false)) {
             return;
         }

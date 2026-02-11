@@ -32,7 +32,6 @@ Complete reference for all component properties and methods.
 | `clearable` | boolean | true | Show clear button |
 | `tags` | boolean | false | Enable tag creation |
 | `autoload` | boolean | false | Load options on mount |
-| `disabled` | boolean | false | Disable the component |
 | `searchable` | boolean | true | Enable search functionality. When `false`, search input fields are hidden and filtering is disabled |
 
 ### Search Configuration
@@ -50,7 +49,7 @@ Complete reference for all component properties and methods.
 | `extra-params` | array | [] | Additional query parameters |
 | `headers` | array | [] | Custom HTTP headers to send with requests (e.g., for authentication) |
 | `use-internal-auth` | boolean | config('async-select.use_internal_auth', false) | Enable internal authentication for same-domain endpoints. Uses config value if not provided |
-| `max-selections` | integer | null | Maximum selections (multiple mode) |
+| `max-selections` | integer | 0 | Maximum selections (multiple mode). `0` means unlimited |
 | `value-field` | string | null | Custom value field name |
 | `label-field` | string | null | Custom label field name |
 
@@ -61,6 +60,7 @@ Complete reference for all component properties and methods.
 | `suffix-button` | boolean | false | Show a button on the right side of the input |
 | `suffix-button-icon` | string | null | Custom icon HTML for the suffix button (defaults to plus icon) |
 | `suffix-button-action` | string | null | Livewire event name to dispatch when button is clicked (defaults to 'suffix-button-clicked') |
+| `suffix-button-action-params` | array | [] | Payload data passed with the suffix button event |
 
 ::: tip Version 1.1.0 Enhancement
 When the suffix button is clicked, the dropdown automatically closes. This is especially useful when opening modals to add or select items, providing a cleaner user experience.
@@ -127,6 +127,26 @@ return view('component', ['users' => $options]);
 ]
 ```
 
+### Group Container Format
+
+```php
+[
+    [
+        'label' => 'Fruits',
+        'options' => [
+            ['value' => 'apple', 'label' => 'Apple'],
+            ['value' => 'banana', 'label' => 'Banana'],
+        ],
+    ],
+    [
+        'label' => 'Vegetables',
+        'options' => [
+            ['value' => 'carrot', 'label' => 'Carrot'],
+        ],
+    ],
+]
+```
+
 ### Disabled Option
 
 ```php
@@ -154,18 +174,21 @@ return view('component', ['users' => $options]);
 ### Option Slot
 
 ```html
-<x-slot name="slot" :option="$option" :isSelected="$isSelected" :isDisabled="$isDisabled" :multiple="$multiple">
+<livewire:slot name="slot">
     <!-- Custom option rendering -->
-</x-slot>
+</livewire:slot>
 ```
 
 ### Selected Item Slot
 
 ```html
-<x-slot name="selectedSlot" :option="$option">
+<livewire:slot name="selectedSlot">
     <!-- Custom selected item rendering -->
-</x-slot>
+</livewire:slot>
 ```
+
+Available variables inside option slot: `$option`, `$isSelected`, `$isDisabled`, `$multiple`.
+Available variables inside selected slot: `$option`.
 
 ## Events
 
@@ -285,4 +308,3 @@ The component supports custom headers and internal authentication:
 - **Internal Auth**: Automatically authenticate requests to same-domain endpoints
 
 [Learn more →](/guide/authentication.html)
-

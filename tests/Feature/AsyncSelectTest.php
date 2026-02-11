@@ -135,6 +135,12 @@ test('handles grouped options', function () {
         ],
     ]);
 
+    expect($component->get('hasGroups'))->toBeTrue();
+
+    $groupedOptions = $component->get('groupedOptions');
+    expect($groupedOptions)->toHaveKey('Group 1');
+    expect($groupedOptions['Group 1'])->toHaveCount(2);
+
     $component->call('selectOption', 'g1_2');
 
     expect($component->get('value'))->toBe('g1_2');
@@ -148,7 +154,7 @@ test('handles grouped options', function () {
 test('handles tags mode for multiple selection', function () {
     $component = Livewire::test(AsyncSelect::class, [
         'multiple' => true,
-        'allowTags' => true,
+        'tags' => true,
     ]);
 
     $component->call('selectOption', 'custom-tag-1');
@@ -174,7 +180,7 @@ test('tag creation adds to both selected and options', function () {
             ['value' => '1', 'label' => 'Existing'],
         ],
         'multiple' => true,
-        'allowTags' => true,
+        'tags' => true,
     ]);
 
     $component->call('selectOption', 'new-tag');
@@ -191,7 +197,7 @@ test('tag creation adds to both selected and options', function () {
 test('does not create duplicate tags', function () {
     $component = Livewire::test(AsyncSelect::class, [
         'multiple' => true,
-        'allowTags' => true,
+        'tags' => true,
     ]);
 
     $component->call('selectOption', 'my-tag');
@@ -203,6 +209,21 @@ test('does not create duplicate tags', function () {
 
     // After toggling, it should be deselected
     expect($component->get('value'))->toBe([]);
+});
+
+test('ignores unknown option values when tags mode is disabled', function () {
+    $component = Livewire::test(AsyncSelect::class, [
+        'options' => [
+            ['value' => '1', 'label' => 'Option 1'],
+            ['value' => '2', 'label' => 'Option 2'],
+        ],
+        'multiple' => false,
+        'tags' => false,
+    ]);
+
+    $component->call('selectOption', 'not-in-options');
+
+    expect($component->get('value'))->toBeNull();
 });
 
 test('shows no results message for empty remote response', function () {

@@ -59,8 +59,31 @@ trait ManagesOptions
             $image = null;
             $disabled = false;
             $group = null;
+            $rawOptionData = [];
 
             if (is_array($option)) {
+                $rawOptionData = $option;
+
+                // Group container format:
+                // ['label' => 'Group Name', 'options' => [...]]
+                if (isset($option['options']) && is_array($option['options'])) {
+                    $groupName = Arr::get($option, 'label')
+                        ?? Arr::get($option, 'group')
+                        ?? Arr::get($option, 'name');
+
+                    $nestedOptions = $this->normalizeOptions($option['options']);
+
+                    foreach ($nestedOptions as $nestedValue => $nestedOption) {
+                        if ($groupName !== null && ! isset($nestedOption['group'])) {
+                            $nestedOption['group'] = (string) $groupName;
+                        }
+
+                        $normalized[$nestedValue] = $nestedOption;
+                    }
+
+                    continue;
+                }
+
                 // Value field: Custom field or auto-detect
                 if ($this->valueField) {
                     $value = Arr::get($option, $this->valueField);
@@ -102,6 +125,14 @@ trait ManagesOptions
                     }
                 }
             } elseif (is_object($option)) {
+                if (method_exists($option, 'toArray')) {
+                    $rawOptionData = (array) $option->toArray();
+                } elseif ($option instanceof \JsonSerializable) {
+                    $rawOptionData = (array) $option->jsonSerialize();
+                } else {
+                    $rawOptionData = (array) $option;
+                }
+
                 // Value field: Custom field or auto-detect
                 if ($this->valueField) {
                     $value = data_get($option, $this->valueField);
@@ -159,22 +190,28 @@ trait ManagesOptions
                 continue;
             }
 
-            $normalized[$valueKey] = [
+            $normalizedOption = [
                 'value' => $valueKey,
                 'label' => (string) $label,
             ];
 
+            if (! empty($rawOptionData)) {
+                $normalizedOption = array_replace($rawOptionData, $normalizedOption);
+            }
+
             if ($image !== null) {
-                $normalized[$valueKey]['image'] = (string) $image;
+                $normalizedOption['image'] = (string) $image;
             }
 
             if ($disabled) {
-                $normalized[$valueKey]['disabled'] = true;
+                $normalizedOption['disabled'] = true;
             }
 
             if ($group !== null) {
-                $normalized[$valueKey]['group'] = (string) $group;
+                $normalizedOption['group'] = (string) $group;
             }
+
+            $normalized[$valueKey] = $normalizedOption;
         }
 
         return $normalized;
