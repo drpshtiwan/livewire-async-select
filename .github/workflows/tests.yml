@@ -12,16 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - php: '8.1'
-            pest: '>=2.34 <2.36'
-            phpunit: '>=10.5.17 <10.5.63'
-          - php: '8.2'
-            pest: '^2.36'
-            phpunit: '^10.5'
-          - php: '8.3'
-            pest: '^2.36'
-            phpunit: '^10.5'
+        php: [ '8.1', '8.2', '8.3' ]
 
     steps:
       - name: Checkout
@@ -43,19 +34,12 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: |
-          if [ -f composer.lock ]; then
-            composer update --no-interaction --prefer-dist \
-              "pestphp/pest:${{ matrix.pest }}" \
-              "phpunit/phpunit:${{ matrix.phpunit }}" \
-              "pestphp/pest-plugin-laravel:^2.4" \
-              --with-all-dependencies
-          else
-            composer update --no-interaction --prefer-dist --with-all-dependencies
-          fi
+        run: composer install --no-interaction --prefer-dist
 
       - name: Run Pint (check)
         run: vendor/bin/pint --test
 
       - name: Run tests
         run: composer test
+
+
