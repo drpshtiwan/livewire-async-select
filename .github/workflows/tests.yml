@@ -34,12 +34,16 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: |
+          if [ -f composer.lock ]; then
+            composer install --no-interaction --prefer-dist
+          else
+            composer update --no-interaction --prefer-dist
+          fi
 
       - name: Run Pint (check)
         run: vendor/bin/pint --test
 
       - name: Run tests
         run: composer test
-
 
