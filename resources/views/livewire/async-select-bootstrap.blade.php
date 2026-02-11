@@ -1,19 +1,20 @@
 @include('async-select::livewire.scripts')
 
 @php
-    $hasNamedOptionSlot = isset($slots) && method_exists($slots, 'has') && $slots->has('slot');
-    $hasNamedSelectedSlot = isset($slots) && method_exists($slots, 'has') && $slots->has('selectedSlot');
+    $namedSlots = $slots ?? null;
+    $hasNamedOptionSlot = isset($namedSlots) && method_exists($namedSlots, 'has') && $namedSlots->has('slot');
+    $hasNamedSelectedSlot = isset($namedSlots) && method_exists($namedSlots, 'has') && $namedSlots->has('selectedSlot');
     $hasLegacyOptionSlot = isset($legacyOptionSlot) && is_callable($legacyOptionSlot);
     $hasLegacySelectedSlot = isset($legacySelectedSlot) && is_callable($legacySelectedSlot);
     $hasCustomOptionSlot = $hasLegacyOptionSlot || $hasNamedOptionSlot;
     $hasCustomSelectedSlot = $hasLegacySelectedSlot || $hasNamedSelectedSlot;
 
-    $renderNamedSlot = function (string $name, array $data = []) use ($slots): string {
-        if (! isset($slots) || ! method_exists($slots, 'get')) {
+    $renderNamedSlot = function (string $name, array $data = []) use ($namedSlots): string {
+        if (! isset($namedSlots) || ! method_exists($namedSlots, 'get')) {
             return '';
         }
 
-        $slotObject = $slots->get($name);
+        $slotObject = $namedSlots->get($name);
         $slotContent = $slotObject->content ?? '';
 
         if (! is_string($slotContent) || trim($slotContent) === '') {
