@@ -1,6 +1,7 @@
 @include('async-select::livewire.scripts')
 
 @php
+    // fixed Undefined variable: slots
     $namedSlots = $slots ?? null;
     $hasNamedOptionSlot = isset($namedSlots) && method_exists($namedSlots, 'has') && $namedSlots->has('slot');
     $hasNamedSelectedSlot = isset($namedSlots) && method_exists($namedSlots, 'has') && $namedSlots->has('selectedSlot');
@@ -10,14 +11,14 @@
     $hasCustomSelectedSlot = $hasLegacySelectedSlot || $hasNamedSelectedSlot;
 
     $renderNamedSlot = function (string $name, array $data = []) use ($namedSlots): string {
-        if (! isset($namedSlots) || ! method_exists($namedSlots, 'get')) {
+        if (!isset($namedSlots) || !method_exists($namedSlots, 'get')) {
             return '';
         }
 
         $slotObject = $namedSlots->get($name);
         $slotContent = $slotObject->content ?? '';
 
-        if (! is_string($slotContent) || trim($slotContent) === '') {
+        if (!is_string($slotContent) || trim($slotContent) === '') {
             return '';
         }
 
