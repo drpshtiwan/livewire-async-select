@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [3.2.0]
+### Added
+- Added support for Bootstrap 4 theme
+
+## [3.1.0]
+### Fixed
+- Fixed undefined variable: slots in async-select-bootstrap.blade.php
+
 ## [3.0.0]
 
 ### Fixed
