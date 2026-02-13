@@ -1,0 +1,347 @@
+/* Livewire Async Select - Bootstrap v4 Compatibility */
+
+.async-select-bootstrap,
+#las-ui-bootstrap {
+  position: relative;
+  width: 100%;
+}
+
+.async-select-bootstrap *,
+#las-ui-bootstrap * {
+  box-sizing: border-box;
+}
+
+/* Bootstrap v4 fallback utilities used by the Blade markup */
+.async-select-bootstrap .text-bg-light,
+#las-ui-bootstrap .text-bg-light {
+  color: #212529 !important;
+  background-color: #f8f9fa !important;
+}
+
+.async-select-bootstrap .ms-1,
+#las-ui-bootstrap .ms-1 {
+  margin-left: 0.25rem !important;
+}
+
+.async-select-bootstrap .me-1,
+#las-ui-bootstrap .me-1 {
+  margin-right: 0.25rem !important;
+}
+
+.async-select-bootstrap .ms-2,
+#las-ui-bootstrap .ms-2 {
+  margin-left: 0.5rem !important;
+}
+
+.async-select-bootstrap .me-2,
+#las-ui-bootstrap .me-2 {
+  margin-right: 0.5rem !important;
+}
+
+.async-select-bootstrap .rounded-start,
+#las-ui-bootstrap .rounded-start {
+  border-top-left-radius: 0.25rem !important;
+  border-bottom-left-radius: 0.25rem !important;
+}
+
+.async-select-bootstrap .rounded-end,
+#las-ui-bootstrap .rounded-end {
+  border-top-right-radius: 0.25rem !important;
+  border-bottom-right-radius: 0.25rem !important;
+}
+
+.async-select-bootstrap .rounded-start-0,
+#las-ui-bootstrap .rounded-start-0 {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.async-select-bootstrap .rounded-end-0,
+#las-ui-bootstrap .rounded-end-0 {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Bootstrap v5-style close button, required for Bootstrap v4 */
+.async-select-bootstrap .btn-close,
+#las-ui-bootstrap .btn-close {
+  display: inline-block !important;
+  width: 1em;
+  height: 1em;
+  padding: 0.25em;
+  margin: 0;
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center / 1em auto no-repeat;
+  border: 0;
+  border-radius: 0.2rem;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.async-select-bootstrap .btn-close:hover,
+#las-ui-bootstrap .btn-close:hover {
+  opacity: 0.75;
+}
+
+.async-select-bootstrap .btn-close:focus,
+#las-ui-bootstrap .btn-close:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  opacity: 1;
+}
+
+.async-select-bootstrap .btn-close-white,
+#las-ui-bootstrap .btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.async-select-bootstrap .async-select-input-group.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+  background: #fff;
+}
+
+.async-select-bootstrap .async-select-trigger.form-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 38px;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  border-right: 0;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  gap: 0.25rem;
+}
+
+.async-select-bootstrap .async-select-trigger.form-control:focus-within {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.async-select-bootstrap .async-select-trigger.form-control input,
+.async-select-bootstrap .async-select-trigger.form-control input:focus {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.async-select-bootstrap .async-select-actions.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-left: 0;
+}
+
+.async-select-bootstrap .async-select-actions .btn-link {
+  color: inherit !important;
+  text-decoration: none;
+}
+
+.async-select-bootstrap .async-select-actions .btn-link:hover {
+  color: inherit !important;
+  opacity: 0.75;
+}
+
+.async-select-bootstrap .input-group > .form-control + .input-group-text,
+.async-select-bootstrap .input-group > .input-group-text + .btn {
+  border-left: 0 !important;
+}
+
+.async-select-bootstrap .input-group > .form-control:first-child {
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.async-select-bootstrap .input-group > .input-group-text:last-child,
+.async-select-bootstrap .input-group > .btn:last-child {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.async-select-bootstrap .async-select-suffix-button,
+#las-ui-bootstrap .async-select-suffix-button {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  white-space: nowrap;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.async-select-bootstrap .async-select-suffix-button:hover,
+#las-ui-bootstrap .async-select-suffix-button:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.async-select-bootstrap .async-select-suffix-button:focus,
+#las-ui-bootstrap .async-select-suffix-button:focus {
+  z-index: 3;
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.async-select-bootstrap .async-select-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35em 0.65em;
+  font-size: 0.875em;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+}
+
+.async-select-bootstrap .async-select-chip .btn-close {
+  padding: 0.15em;
+  font-size: 0.85em;
+}
+
+.async-select-bootstrap .async-select-dropdown {
+  position: absolute;
+  z-index: 1050 !important;
+  display: block;
+  width: 100%;
+  padding: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  color: #212529;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.async-select-bootstrap .async-select-option.list-group-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  color: #212529;
+  text-decoration: none;
+  gap: 0.5rem;
+}
+
+.async-select-bootstrap .async-select-option.list-group-item-action {
+  width: 100%;
+  cursor: pointer;
+  border-color: transparent;
+}
+
+.async-select-bootstrap .async-select-option.list-group-item-action:hover,
+.async-select-bootstrap .async-select-option.list-group-item-action:focus,
+.async-select-bootstrap .async-select-option.list-group-item-action.active {
+  z-index: 1;
+  color: #212529;
+  text-decoration: none;
+  background-color: #f8f9fa;
+  border-color: transparent;
+}
+
+.async-select-bootstrap .async-select-option.list-group-item.disabled,
+.async-select-bootstrap .async-select-option.list-group-item:disabled {
+  color: #6c757d;
+  pointer-events: none;
+  background-color: inherit;
+  opacity: 0.65;
+}
+
+.async-select-bootstrap .list-group-item-secondary {
+  color: #495057;
+  background-color: #e9ecef;
+}
+
+.async-select-bootstrap .async-select-dropdown .form-control-sm {
+  min-height: calc(1.5em + 0.5rem + 2px);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+.async-select-bootstrap .spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.2em;
+}
+
+.async-select-bootstrap .text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* RTL */
+.async-select-bootstrap[dir="rtl"],
+#las-ui-bootstrap[dir="rtl"] {
+  direction: rtl;
+}
+
+.async-select-bootstrap[dir="rtl"] .async-select-trigger,
+#las-ui-bootstrap[dir="rtl"] .async-select-trigger,
+.async-select-bootstrap[dir="rtl"] .async-select-option,
+#las-ui-bootstrap[dir="rtl"] .async-select-option,
+.async-select-bootstrap[dir="rtl"] .async-select-dropdown,
+#las-ui-bootstrap[dir="rtl"] .async-select-dropdown {
+  text-align: right;
+}
+
+.async-select-bootstrap[dir="rtl"] .async-select-trigger input,
+#las-ui-bootstrap[dir="rtl"] .async-select-trigger input,
+.async-select-bootstrap[dir="rtl"] .async-select-trigger input::placeholder,
+#las-ui-bootstrap[dir="rtl"] .async-select-trigger input::placeholder {
+  text-align: right;
+  direction: rtl;
+}
+
+.async-select-bootstrap[dir="rtl"] .me-1,
+#las-ui-bootstrap[dir="rtl"] .me-1 {
+  margin-right: 0 !important;
+  margin-left: 0.25rem !important;
+}
+
+.async-select-bootstrap[dir="rtl"] .ms-1,
+#las-ui-bootstrap[dir="rtl"] .ms-1 {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+}
+
+.async-select-bootstrap[dir="rtl"] .me-2,
+#las-ui-bootstrap[dir="rtl"] .me-2 {
+  margin-right: 0 !important;
+  margin-left: 0.5rem !important;
+}
+
+.async-select-bootstrap[dir="rtl"] .ms-2,
+#las-ui-bootstrap[dir="rtl"] .ms-2 {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}

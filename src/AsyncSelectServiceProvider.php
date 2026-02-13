@@ -37,6 +37,7 @@ class AsyncSelectServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__.'/../dist/async-select.css' => public_path('vendor/async-select/async-select.css'),
+            __DIR__.'/../dist/async-select-bootstrap-v4.css' => public_path('vendor/async-select/async-select-bootstrap-v4.css'),
         ], 'async-select-assets');
 
         $this->publishes([
@@ -60,6 +61,10 @@ class AsyncSelectServiceProvider extends ServiceProvider
     {
         \Illuminate\Support\Facades\Blade::directive('asyncSelectStyles', function () {
             return "<?php echo '<link rel=\"stylesheet\" href=\"' . asset('vendor/async-select/async-select.css') . '\">'; ?>";
+        });
+
+        \Illuminate\Support\Facades\Blade::directive('asyncSelectBootstrapV4Styles', function () {
+            return "<?php echo '<link rel=\"stylesheet\" href=\"' . asset('vendor/async-select/async-select-bootstrap-v4.css') . '\">'; ?>";
         });
     }
 

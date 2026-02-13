@@ -38,6 +38,8 @@ Add the styles and scripts stack to your layout file (e.g., `resources/views/lay
 <head>
     <title>Your App</title>
     @asyncSelectStyles
+    {{-- Optional: include when using Bootstrap 4 theme styling --}}
+    {{-- @asyncSelectBootstrapV4Styles --}}
     @livewireStyles
 </head>
 <body>
@@ -57,6 +59,8 @@ Or manually include the CSS:
 
 ```html
 <link rel="stylesheet" href="{{ asset('vendor/async-select/async-select.css') }}">
+<!-- Optional: include when using Bootstrap 4 theme styling -->
+<link rel="stylesheet" href="{{ asset('vendor/async-select/async-select-bootstrap-v4.css') }}">
 ```
 
 ## Publish Configuration (Optional)

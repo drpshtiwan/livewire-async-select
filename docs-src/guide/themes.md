@@ -8,6 +8,23 @@ The component supports two UI themes:
 - **Tailwind** (default) - Modern, clean design using Tailwind CSS
 - **Bootstrap** - Classic Bootstrap styling
 
+### Bootstrap Version Support
+
+- **Bootstrap 5+**: use the default `@asyncSelectStyles`
+- **Bootstrap 4**: include both `@asyncSelectStyles` and `@asyncSelectBootstrapV4Styles`
+
+```blade
+@asyncSelectStyles
+@asyncSelectBootstrapV4Styles
+```
+
+Manual include:
+
+```html
+<link rel="stylesheet" href="{{ asset('vendor/async-select/async-select.css') }}">
+<link rel="stylesheet" href="{{ asset('vendor/async-select/async-select-bootstrap-v4.css') }}">
+```
+
 ### How Views Are Loaded
 
 The component automatically loads the appropriate view based on the `ui` property:
@@ -240,14 +257,18 @@ If you want to modify the source CSS and rebuild:
    npm install
    ```
 
-3. Modify `resources/css/async-select.css`
+3. Modify source CSS:
+   - `resources/css/async-select.css` (default styles)
+   - `resources/css/async-select-bootstrap-v4.css` (Bootstrap 4 compatibility)
 
 4. Build:
    ```bash
    npm run build
    ```
 
-The compiled CSS will be in `dist/async-select.css`.
+The compiled CSS will be in:
+- `dist/async-select.css`
+- `dist/async-select-bootstrap-v4.css`
 
 See [BUILDING.md](https://github.com/drpshtiwan/livewire-async-select/blob/main/BUILDING.md) for more details.
 

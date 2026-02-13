@@ -57,6 +57,8 @@ php artisan vendor:publish --tag=async-select-assets
 ```blade
 <head>
     @asyncSelectStyles
+    {{-- Optional: only if using Bootstrap 4 theme styling --}}
+    {{-- @asyncSelectBootstrapV4Styles --}}
     @livewireStyles
 </head>
 <body>
