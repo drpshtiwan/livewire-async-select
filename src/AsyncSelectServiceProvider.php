@@ -2,6 +2,10 @@
 
 namespace DrPshtiwan\LivewireAsyncSelect;
 
+use DrPshtiwan\LivewireAsyncSelect\Console\GenerateInternalSecretCommand;
+use DrPshtiwan\LivewireAsyncSelect\Http\Middleware\InternalAuthenticate;
+use DrPshtiwan\LivewireAsyncSelect\Livewire\AsyncSelect;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
@@ -18,12 +22,12 @@ class AsyncSelectServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'async-select');
 
         if (class_exists(Livewire::class)) {
-            Livewire::component('async-select', \DrPshtiwan\LivewireAsyncSelect\Livewire\AsyncSelect::class);
+            Livewire::component('async-select', AsyncSelect::class);
         }
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \DrPshtiwan\LivewireAsyncSelect\Console\GenerateInternalSecretCommand::class,
+                GenerateInternalSecretCommand::class,
             ]);
         }
 
@@ -52,24 +56,24 @@ class AsyncSelectServiceProvider extends ServiceProvider
     {
         $router = $this->app['router'];
 
-        $middlewareClass = \DrPshtiwan\LivewireAsyncSelect\Http\Middleware\InternalAuthenticate::class;
+        $middlewareClass = InternalAuthenticate::class;
 
         $router->aliasMiddleware('async-auth', $middlewareClass);
     }
 
     protected function registerBladeDirectives(): void
     {
-        \Illuminate\Support\Facades\Blade::directive('asyncSelectStyles', function () {
+        Blade::directive('asyncSelectStyles', function () {
             return "<?php echo '<link rel=\"stylesheet\" href=\"' . asset('vendor/async-select/async-select.css') . '\">'; ?>";
         });
 
-        \Illuminate\Support\Facades\Blade::directive('asyncSelectBootstrapV4Styles', function () {
+        Blade::directive('asyncSelectBootstrapV4Styles', function () {
             return "<?php echo '<link rel=\"stylesheet\" href=\"' . asset('vendor/async-select/async-select-bootstrap-v4.css') . '\">'; ?>";
         });
     }
 
     public static function getInternalAuthMiddlewareClass(): string
     {
-        return \DrPshtiwan\LivewireAsyncSelect\Http\Middleware\InternalAuthenticate::class;
+        return InternalAuthenticate::class;
     }
 }

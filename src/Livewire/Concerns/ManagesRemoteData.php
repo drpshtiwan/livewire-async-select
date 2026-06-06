@@ -2,6 +2,7 @@
 
 namespace DrPshtiwan\LivewireAsyncSelect\Livewire\Concerns;
 
+use DrPshtiwan\LivewireAsyncSelect\Support\InternalAuthToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Request;
@@ -257,7 +258,7 @@ trait ManagesRemoteData
 
     protected function generateInternalAuthToken(string $endpoint, string $method = 'GET', ?string $body = null): ?string
     {
-        if (! class_exists(\DrPshtiwan\LivewireAsyncSelect\Support\InternalAuthToken::class)) {
+        if (! class_exists(InternalAuthToken::class)) {
             return null;
         }
 
@@ -280,7 +281,7 @@ trait ManagesRemoteData
 
             $bodyHash = $body !== null ? hash('sha256', $body) : null;
 
-            $token = \DrPshtiwan\LivewireAsyncSelect\Support\InternalAuthToken::issue($userId, [
+            $token = InternalAuthToken::issue($userId, [
                 'm' => $method,
                 'p' => $path,
                 'h' => $host,

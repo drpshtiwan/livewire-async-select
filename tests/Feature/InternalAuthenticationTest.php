@@ -5,6 +5,7 @@ use DrPshtiwan\LivewireAsyncSelect\Support\InternalAuthToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -378,11 +379,11 @@ test('InternalAuthToken remembers the nonce at least until the token expires', f
 test('middleware rejects a replayed internal auth token', function () {
     $token = InternalAuthToken::issue(123, ['m' => 'GET', 'p' => '/api/replay']);
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/replay', function () {
+    Route::middleware(['async-auth'])->get('/api/replay', function () {
         return response()->json(['user_id' => auth()->id()]);
     });
 
-    $guard = \Mockery::mock();
+    $guard = Mockery::mock();
     $guard->shouldReceive('onceUsingId')->once()->with('123')->andReturn(true);
     $guard->shouldReceive('check')->andReturn(true);
     $guard->shouldReceive('id')->andReturn(123);
@@ -407,14 +408,14 @@ test('middleware can be applied to routes and works with AsyncSelect', function 
         'p' => '/api/test',
     ]);
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/test', function () {
+    Route::middleware(['async-auth'])->get('/api/test', function () {
         return response()->json([
             'user_id' => auth()->id(),
             'authenticated' => auth()->check(),
         ]);
     });
 
-    $guard = \Mockery::mock();
+    $guard = Mockery::mock();
     $guard->shouldReceive('onceUsingId')
         ->once()
         ->with('123')
@@ -472,7 +473,7 @@ test('route can access authenticated user when internal auth is provided', funct
         'p' => '/api/user',
     ]);
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/user', function () {
+    Route::middleware(['async-auth'])->get('/api/user', function () {
         return response()->json([
             'user' => [
                 'id' => auth()->id(),
@@ -482,7 +483,7 @@ test('route can access authenticated user when internal auth is provided', funct
         ]);
     });
 
-    $guard = \Mockery::mock();
+    $guard = Mockery::mock();
     $guard->shouldReceive('onceUsingId')
         ->once()
         ->with('123')
@@ -530,7 +531,7 @@ test('route can access authenticated user when internal auth is provided', funct
 test('middleware works with AsyncSelect making requests to protected routes', function () {
     $userId = 123;
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/users', function () {
+    Route::middleware(['async-auth'])->get('/api/users', function () {
         return response()->json([
             'data' => [
                 ['id' => 1, 'name' => 'User 1'],
@@ -601,17 +602,17 @@ test('middleware works with AsyncSelect making requests to protected routes', fu
 test('middleware can be applied to route groups', function () {
     $userId = 123;
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->prefix('api')->group(function () {
-        \Illuminate\Support\Facades\Route::get('/users', function () {
+    Route::middleware(['async-auth'])->prefix('api')->group(function () {
+        Route::get('/users', function () {
             return response()->json(['user_id' => auth()->id()]);
         });
 
-        \Illuminate\Support\Facades\Route::get('/posts', function () {
+        Route::get('/posts', function () {
             return response()->json(['user_id' => auth()->id()]);
         });
     });
 
-    $guard = \Mockery::mock();
+    $guard = Mockery::mock();
     $guard->shouldReceive('onceUsingId')
         ->twice()
         ->with('123')
@@ -760,13 +761,13 @@ test('middleware preserves locale from Accept-Language header', function () {
     // Set initial locale
     app()->setLocale('en');
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/test', function () {
+    Route::middleware(['async-auth'])->get('/api/test', function () {
         return response()->json([
             'locale' => app()->getLocale(),
         ]);
     });
 
-    $guard = \Mockery::mock();
+    $guard = Mockery::mock();
     $guard->shouldReceive('onceUsingId')
         ->once()
         ->with('123')
@@ -825,14 +826,14 @@ test('middleware preserves locale for translations in internal auth requests', f
     }
     file_put_contents($translationsPath.'/async-select.php', "<?php return ['select_option' => 'هەڵبژاردن'];");
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/translated', function () {
+    Route::middleware(['async-auth'])->get('/api/translated', function () {
         return response()->json([
             'locale' => app()->getLocale(),
             'translation' => __('async-select::async-select.select_option'),
         ]);
     });
 
-    $guard = \Mockery::mock();
+    $guard = Mockery::mock();
     $guard->shouldReceive('onceUsingId')
         ->once()
         ->with('123')
@@ -890,13 +891,13 @@ test('middleware does not change locale when Accept-Language header is missing',
     app()->setLocale('en');
     $initialLocale = app()->getLocale();
 
-    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/test', function () {
+    Route::middleware(['async-auth'])->get('/api/test', function () {
         return response()->json([
             'locale' => app()->getLocale(),
         ]);
     });
 
-    $guard = \Mockery::mock();
+    $guard = Mockery::mock();
     $guard->shouldReceive('onceUsingId')
         ->once()
         ->with('123')
