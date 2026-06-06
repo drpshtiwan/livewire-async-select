@@ -672,9 +672,13 @@ Route::middleware(['web', 'async-auth:admin'])->prefix('admin')->group(function 
 The internal authentication system includes several security features:
 
 1. **Request Binding**: Tokens are bound to specific request attributes (method, path, host, body hash) to prevent token reuse
-2. **Replay Protection**: Each token includes a nonce that's cached to prevent replay attacks
+2. **Replay Protection**: Each token includes a nonce that's recorded in the cache on first use, so a token cannot be replayed within its validity window
 3. **Short Expiry**: Tokens expire after 60 seconds
 4. **Key Rotation**: Supports rotating keys without breaking existing tokens
+
+::: warning Replay protection requires a shared cache
+Replay protection records each nonce via Laravel's cache (`Cache::add()`). In a multi-server deployment, all application servers must share the same cache store (e.g. Redis, Memcached, or the database driver). The per-process `array` driver only blocks replays within a single worker, so a token could otherwise be replayed against a different server.
+:::
 
 ### Key Rotation
 

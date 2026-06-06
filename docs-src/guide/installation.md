@@ -4,8 +4,8 @@
 
 Before installing, ensure your environment meets these requirements:
 
-- **PHP**: 8.1 or higher
-- **Laravel**: 10.x, 11.x, or 12.x
+- **PHP**: 8.2 or higher
+- **Laravel**: 11.x, 12.x, or 13.x
 - **Livewire**: 3.3 or higher (including 4.x)
 
 ## Install via Composer
