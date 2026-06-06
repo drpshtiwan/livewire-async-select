@@ -140,7 +140,7 @@ The `async-auth` middleware is automatically registered and works exactly like `
 ## 📋 Requirements
 
 - PHP 8.1+
-- Laravel 10.x, 11.x, or 12.x
+- Laravel 10.x, 11.x, 12.x, or 13.x
 - Livewire 3.3+ or 4.x
 
 ## 🆚 Why This Package?

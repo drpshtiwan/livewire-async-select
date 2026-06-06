@@ -97,12 +97,23 @@ class InternalAuthToken
             throw new \RuntimeException('Expired token');
         }
 
-        $nonceKey = 'async-select:internal:nonce:'.$payload['nonce'];
-        $nonceTtl = config('async-select.internal.nonce_ttl', 120);
+        $nonce = $payload['nonce'] ?? null;
+        if (empty($nonce)) {
+            throw new \RuntimeException('Missing nonce');
+        }
 
-        // if (Cache::add($nonceKey, 1, now()->addSeconds($nonceTtl)) === false) {
-        //     throw new \RuntimeException('Replay detected');
-        // }
+        $nonceKey = 'async-select:internal:nonce:'.$nonce;
+        $nonceTtl = (int) config('async-select.internal.nonce_ttl', 120);
+
+        // Remember the nonce at least until the token itself expires; otherwise a
+        // token could be replayed during the gap between nonce eviction and token
+        // expiry if nonce_ttl is configured shorter than the token lifetime.
+        $remainingLife = (int) ($payload['exp'] ?? 0) - time() + 1;
+        $ttl = max($nonceTtl, $remainingLife);
+
+        if (Cache::add($nonceKey, 1, now()->addSeconds($ttl)) === false) {
+            throw new \RuntimeException('Replay detected');
+        }
 
         return $payload;
     }

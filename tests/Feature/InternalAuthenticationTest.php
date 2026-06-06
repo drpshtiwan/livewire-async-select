@@ -352,6 +352,54 @@ test('AsyncSelect adds internal auth header for selectedEndpoint requests', func
     }
 });
 
+test('InternalAuthToken rejects a replayed token (nonce reuse)', function () {
+    $token = InternalAuthToken::issue(123, ['m' => 'GET', 'p' => '/api/replay']);
+
+    $first = InternalAuthToken::verify($token);
+    expect($first['uid'])->toBe('123');
+
+    expect(fn () => InternalAuthToken::verify($token))
+        ->toThrow(RuntimeException::class, 'Replay detected');
+});
+
+test('InternalAuthToken remembers the nonce at least until the token expires', function () {
+    Config::set('async-select.internal.nonce_ttl', 1);
+
+    $token = InternalAuthToken::issue(123, ['m' => 'GET', 'p' => '/api/replay']);
+
+    InternalAuthToken::verify($token);
+
+    // Even though nonce_ttl is shorter than the token lifetime, the nonce must
+    // still be remembered for the full validity window, so a replay is blocked.
+    expect(fn () => InternalAuthToken::verify($token))
+        ->toThrow(RuntimeException::class, 'Replay detected');
+});
+
+test('middleware rejects a replayed internal auth token', function () {
+    $token = InternalAuthToken::issue(123, ['m' => 'GET', 'p' => '/api/replay']);
+
+    \Illuminate\Support\Facades\Route::middleware(['async-auth'])->get('/api/replay', function () {
+        return response()->json(['user_id' => auth()->id()]);
+    });
+
+    $guard = \Mockery::mock();
+    $guard->shouldReceive('onceUsingId')->once()->with('123')->andReturn(true);
+    $guard->shouldReceive('check')->andReturn(true);
+    $guard->shouldReceive('id')->andReturn(123);
+    $guard->shouldReceive('user')->andReturn(null);
+
+    Auth::shouldReceive('shouldUse')->once()->with('web')->andReturnSelf();
+    Auth::shouldReceive('guard')->once()->with('web')->andReturn($guard);
+    Auth::shouldReceive('check')->andReturn(true);
+    Auth::shouldReceive('id')->andReturn(123);
+    Auth::shouldReceive('user')->andReturn(null);
+
+    $this->get('/api/replay', ['X-Internal-User' => $token])->assertStatus(200);
+
+    // Replaying the exact same token must be rejected.
+    $this->get('/api/replay', ['X-Internal-User' => $token])->assertStatus(401);
+});
+
 test('middleware can be applied to routes and works with AsyncSelect', function () {
     $userId = 123;
     $token = InternalAuthToken::issue($userId, [
